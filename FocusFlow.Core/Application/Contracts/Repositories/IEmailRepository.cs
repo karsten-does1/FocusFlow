@@ -10,6 +10,8 @@ namespace FocusFlow.Core.Application.Contracts.Repositories
         Task<IReadOnlyList<EmailDto>> GetLatestAsync(string? search, CancellationToken ct = default);
         Task<EmailDto?> GetAsync(Guid id, CancellationToken ct = default);
         Task<Guid> AddAsync(EmailDto dto, CancellationToken ct = default);
+        Task UpdateAsync(EmailDto dto, CancellationToken ct = default);
+        Task DeleteAsync(Guid id, CancellationToken ct = default);
     }
 }
 

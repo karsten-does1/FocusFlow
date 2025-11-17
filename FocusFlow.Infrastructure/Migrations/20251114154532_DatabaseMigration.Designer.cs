@@ -3,16 +3,19 @@ using System;
 using FocusFlow.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
 
-namespace FocusFlow.Infrastructure.Persistence.Migrations
+namespace FocusFlow.Infrastructure.Migrations
 {
     [DbContext(typeof(FocusFlowDbContext))]
-    partial class FocusFlowDbContextModelSnapshot : ModelSnapshot
+    [Migration("20251114154532_DatabaseMigration")]
+    partial class DatabaseMigration
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "9.0.11");

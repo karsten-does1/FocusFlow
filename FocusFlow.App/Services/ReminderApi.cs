@@ -25,6 +25,9 @@ namespace FocusFlow.App.Services
         public Task<ReminderDto?> GetAsync(Guid id, CancellationToken ct = default)
             => _http.GetFromJsonAsync<ReminderDto>($"/api/reminders/{id}", ct);
 
+        public async Task<IReadOnlyList<ReminderDto>> GetAllAsync(CancellationToken ct = default)
+            => await _http.GetFromJsonAsync<IReadOnlyList<ReminderDto>>("/api/reminders", ct) ?? Array.Empty<ReminderDto>();
+
         public Task<IReadOnlyList<ReminderDto>?> RawUpcomingAsync(DateTime untilUtc, CancellationToken ct = default)
             => _http.GetFromJsonAsync<IReadOnlyList<ReminderDto>>($"/api/reminders/upcoming?untilUtc={untilUtc:o}", ct);
 

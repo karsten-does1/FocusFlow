@@ -9,9 +9,7 @@ using FocusFlow.App.Services;
 
 namespace FocusFlow.App
 {
-    /// <summary>
-    /// Interaction logic for App.xaml
-    /// </summary>
+ 
     public partial class App : Application
     {
         public static IHost HostApp { get; private set; } = null!;
@@ -28,14 +26,19 @@ namespace FocusFlow.App
 
             builder.ConfigureServices((ctx, services) =>
             {
-                var apiBase = ctx.Configuration["Api:BaseUrl"] ?? "https://localhost:7279";
+                var apiBase = ctx.Configuration["Api:BaseUrl"] ?? "https://localhost:7248";
 
                 services.AddHttpClient<IEmailService, EmailApi>(c => c.BaseAddress = new Uri(apiBase));
                 services.AddHttpClient<ISummaryService, SummaryApi>(c => c.BaseAddress = new Uri(apiBase));
                 services.AddHttpClient<ITaskService, TaskApi>(c => c.BaseAddress = new Uri(apiBase));
                 services.AddHttpClient<IReminderService, ReminderApi>(c => c.BaseAddress = new Uri(apiBase));
 
-               
+                
+                services.AddTransient<ViewModels.DashboardViewModel>();
+                services.AddTransient<ViewModels.TasksViewModel>();
+                services.AddTransient<ViewModels.EmailsViewModel>();
+                services.AddTransient<ViewModels.RemindersViewModel>();
+                services.AddTransient<ViewModels.MainViewModel>();
             });
 
             HostApp = builder.Build();
@@ -45,8 +48,10 @@ namespace FocusFlow.App
         {
             await HostApp.StartAsync();
             base.OnStartup(e);
-            // var win = new MainWindow { DataContext = HostApp.Services.GetRequiredService<MainViewModel>() };
-            // win.Show();
+
+            var mainViewModel = HostApp.Services.GetRequiredService<ViewModels.MainViewModel>();
+            var win = new MainWindow(mainViewModel);
+            win.Show();
         }
 
         protected override async void OnExit(ExitEventArgs e)
@@ -57,4 +62,3 @@ namespace FocusFlow.App
         }
     }
 }
-    

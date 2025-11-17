@@ -31,6 +31,15 @@ namespace FocusFlow.Infrastructure.Repositories
             return entity is null ? null : MapToDto(entity);
         }
 
+        public async Task<IReadOnlyList<ReminderDto>> GetAllAsync(CancellationToken ct = default)
+        {
+            return await _db.Reminders
+                .AsNoTracking()
+                .OrderBy(r => r.FireAtUtc)
+                .Select(r => MapToDto(r))
+                .ToListAsync(ct);
+        }
+
         public async Task<IReadOnlyList<ReminderDto>> UpcomingAsync(DateTime untilUtc, CancellationToken ct = default)
         {
             return await _db.Reminders

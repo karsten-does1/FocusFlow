@@ -11,6 +11,10 @@ namespace FocusFlow.Api.Controllers
         private readonly IReminderRepository _repo;
         public RemindersController(IReminderRepository repo) => _repo = repo;
 
+        [HttpGet]
+        public async Task<ActionResult<IReadOnlyList<ReminderDto>>> GetAll(CancellationToken ct)
+            => Ok(await _repo.GetAllAsync(ct));
+
         [HttpGet("{id:guid}")]
         public async Task<ActionResult<ReminderDto>> Get(Guid id, CancellationToken ct)
         {

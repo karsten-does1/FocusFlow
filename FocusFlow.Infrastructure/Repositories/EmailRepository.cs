@@ -51,6 +51,24 @@ namespace FocusFlow.Infrastructure.Repositories
                 .ToListAsync(ct);
         }
 
+        public async Task UpdateAsync(EmailDto dto, CancellationToken ct = default)
+        {
+            var entity = await _db.Emails.FirstOrDefaultAsync(x => x.Id == dto.Id, ct);
+            if (entity is null) return;
+
+            entity.SetPriority(dto.PriorityScore);
+            await _db.SaveChangesAsync(ct);
+        }
+
+        public async Task DeleteAsync(Guid id, CancellationToken ct = default)
+        {
+            var entity = await _db.Emails.FirstOrDefaultAsync(x => x.Id == id, ct);
+            if (entity is null) return;
+
+            _db.Emails.Remove(entity);
+            await _db.SaveChangesAsync(ct);
+        }
+
         private static EmailDto MapToDto(Email entity) =>
             new EmailDto(entity.Id, entity.From, entity.Subject, entity.BodyText, entity.ReceivedUtc, entity.PriorityScore);
     }

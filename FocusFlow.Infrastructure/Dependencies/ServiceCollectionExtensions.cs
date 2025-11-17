@@ -12,7 +12,7 @@ namespace FocusFlow.Infrastructure.Dependencies
         public static IServiceCollection AddFocusFlowInfrastructure(
             this IServiceCollection services, IConfiguration cfg)
         {
-            var cs = cfg.GetConnectionString("FocusFlow") ?? "Data Source=focusflow.db";
+            var cs = cfg.GetConnectionString("FocusFlow") ?? "Data Source=../FocusFlow.Infrastructure/focusflow.db";
             services.AddDbContext<FocusFlowDbContext>(opt => opt.UseSqlite(cs));
 
             services.AddScoped<IEmailRepository, EmailRepository>();

@@ -29,5 +29,17 @@ namespace FocusFlow.App.Services
             resp.EnsureSuccessStatusCode();
             return await resp.Content.ReadFromJsonAsync<Guid>(cancellationToken: ct);
         }
+
+        public async Task UpdateAsync(EmailDto dto, CancellationToken ct = default)
+        {
+            var resp = await _http.PutAsJsonAsync($"/api/emails/{dto.Id}", dto, ct);
+            resp.EnsureSuccessStatusCode();
+        }
+
+        public async Task DeleteAsync(Guid id, CancellationToken ct = default)
+        {
+            var resp = await _http.DeleteAsync($"/api/emails/{id}", ct);
+            resp.EnsureSuccessStatusCode();
+        }
     }
 }

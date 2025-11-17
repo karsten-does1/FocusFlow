@@ -28,5 +28,20 @@ namespace FocusFlow.Api.Controllers
             var id = await _repo.AddAsync(dto, ct);
             return Ok(id);
         }
+
+        [HttpPut("{id:guid}")]
+        public async Task<IActionResult> Update(Guid id, [FromBody] EmailDto dto, CancellationToken ct)
+        {
+            if (id != dto.Id) return BadRequest();
+            await _repo.UpdateAsync(dto, ct);
+            return NoContent();
+        }
+
+        [HttpDelete("{id:guid}")]
+        public async Task<IActionResult> Delete(Guid id, CancellationToken ct)
+        {
+            await _repo.DeleteAsync(id, ct);
+            return NoContent();
+        }
     }
 }

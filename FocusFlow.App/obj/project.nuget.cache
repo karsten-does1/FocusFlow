@@ -1,9 +1,10 @@
 {
   "version": 2,
-  "dgSpecHash": "2eizg1lo0GI=",
+  "dgSpecHash": "iMmkLJCBpc8=",
   "success": true,
   "projectFilePath": "C:\\Users\\Loote\\source\\repos\\FocusFlow\\FocusFlow.App\\FocusFlow.App.csproj",
   "expectedPackageFiles": [
+    "C:\\Users\\Loote\\.nuget\\packages\\communitytoolkit.mvvm\\8.3.2\\communitytoolkit.mvvm.8.3.2.nupkg.sha512",
     "C:\\Users\\Loote\\.nuget\\packages\\microsoft.extensions.configuration\\10.0.0\\microsoft.extensions.configuration.10.0.0.nupkg.sha512",
     "C:\\Users\\Loote\\.nuget\\packages\\microsoft.extensions.configuration.abstractions\\10.0.0\\microsoft.extensions.configuration.abstractions.10.0.0.nupkg.sha512",
     "C:\\Users\\Loote\\.nuget\\packages\\microsoft.extensions.configuration.binder\\10.0.0\\microsoft.extensions.configuration.binder.10.0.0.nupkg.sha512",

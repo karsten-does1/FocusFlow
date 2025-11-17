@@ -9,6 +9,7 @@ namespace FocusFlow.Core.Application.Contracts.Repositories
     {
         Task<Guid> AddAsync(ReminderDto dto, CancellationToken ct = default);
         Task<ReminderDto?> GetAsync(Guid id, CancellationToken ct = default);
+        Task<IReadOnlyList<ReminderDto>> GetAllAsync(CancellationToken ct = default);
         Task<IReadOnlyList<ReminderDto>> UpcomingAsync(DateTime untilUtc, CancellationToken ct = default);
         Task MarkFiredAsync(Guid id, CancellationToken ct = default);
         Task DeleteAsync(Guid id, CancellationToken ct = default);
