@@ -11,29 +11,54 @@ namespace FocusFlow.Infrastructure.Repositories
 
         public SummaryRepository(FocusFlowDbContext db) => _db = db;
 
-        public async Task<string?> GetTextAsync(Guid emailId, CancellationToken ct = default)
+        public async Task<Summary?> GetAsync(Guid id, CancellationToken ct = default)
         {
             return await _db.Summaries
                 .AsNoTracking()
-                .Where(s => s.EmailId == emailId)
-                .OrderByDescending(s => s.CreatedUtc)
-                .Select(s => s.Text)
+                .FirstOrDefaultAsync(summary => summary.Id == id, ct);
+        }
+
+        public async Task<Summary?> GetByEmailIdAsync(Guid emailId, CancellationToken ct = default)
+        {
+            return await _db.Summaries
+                .AsNoTracking()
+                .Where(summary => summary.EmailId == emailId)
+                .OrderByDescending(summary => summary.CreatedUtc)
                 .FirstOrDefaultAsync(ct);
         }
 
-        public async Task UpsertAsync(Guid emailId, string text, CancellationToken ct = default)
+        public async Task<Summary?> GetForUpdateAsync(Guid id, CancellationToken ct = default)
         {
-            var entity = await _db.Summaries.FirstOrDefaultAsync(s => s.EmailId == emailId, ct);
+            return await _db.Summaries
+                .FirstOrDefaultAsync(summary => summary.Id == id, ct);
+        }
 
-            if (entity is null)
-            {
-                _db.Summaries.Add(new Summary(emailId, text));
-            }
-            else
-            {
-                entity.UpdateText(text);
-            }
+        public async Task<Summary?> GetForUpdateByEmailIdAsync(Guid emailId, CancellationToken ct = default)
+        {
+            return await _db.Summaries
+                .Where(summary => summary.EmailId == emailId)
+                .OrderByDescending(summary => summary.CreatedUtc)
+                .FirstOrDefaultAsync(ct);
+        }
 
+        public async Task<Guid> AddAsync(Summary entity, CancellationToken ct = default)
+        {
+            _db.Summaries.Add(entity);
+            await _db.SaveChangesAsync(ct);
+            return entity.Id;
+        }
+
+        public async Task UpdateAsync(Summary entity, CancellationToken ct = default)
+        {
+            await _db.SaveChangesAsync(ct);
+        }
+
+        public async Task DeleteAsync(Guid id, CancellationToken ct = default)
+        {
+            var entity = await GetForUpdateAsync(id, ct);
+            if (entity is null) return;
+
+            _db.Summaries.Remove(entity);
             await _db.SaveChangesAsync(ct);
         }
     }

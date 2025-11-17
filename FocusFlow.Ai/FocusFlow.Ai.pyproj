@@ -4,7 +4,7 @@
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>3c105c5b-660b-40e8-8ba7-2409a5e3f7f8</ProjectGuid>
     <ProjectHome>.</ProjectHome>
-    <StartupFile>FocusFlow.Ai.py</StartupFile>
+    <StartupFile>Main.py</StartupFile>
     <SearchPath>
     </SearchPath>
     <WorkingDirectory>.</WorkingDirectory>
@@ -21,7 +21,14 @@
     <EnableUnmanagedDebugging>false</EnableUnmanagedDebugging>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="FocusFlow.Ai.py" />
+    <Compile Include="Main.py" />
+    <Compile Include="Models.py" />
+    <Compile Include="Services\EmailAnalyzer.py" />
+    <Compile Include="Services\TextToSpeech.py" />
+    <Compile Include="Services\__init__.py" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Services\" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\Python Tools\Microsoft.PythonTools.targets" />
   <!-- Uncomment the CoreCompile target to enable the Build command in

@@ -24,11 +24,28 @@ namespace FocusFlow.Core.Domain.Entities
 
         public void Complete() => IsDone = true;
         public void Reopen() => IsDone = false;
-        public void Update(string title, string? notes, DateTime? dueUtc)
+
+        public void Update(string title, string? notes, DateTime? dueUtc, bool? isDone = null, Guid? relatedEmailId = null)
         {
             Title = title ?? "";
             Notes = notes;
             DueUtc = dueUtc;
+
+            // Update RelatedEmailId when provided (null is a valid value to clear the relationship)
+            RelatedEmailId = relatedEmailId;
+
+            // Update IsDone status when provided
+            if (isDone.HasValue)
+            {
+                if (isDone.Value)
+                {
+                    Complete();
+                }
+                else
+                {
+                    Reopen();
+                }
+            }
         }
     }
 }

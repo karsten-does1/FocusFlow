@@ -1,5 +1,4 @@
-﻿using FocusFlow.Core.Application.Contracts.DTOs;
-using FocusFlow.Core.Application.Contracts.Repositories;
+﻿using FocusFlow.Core.Application.Contracts.Repositories;
 using FocusFlow.Core.Domain.Entities;
 using FocusFlow.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
@@ -12,47 +11,46 @@ namespace FocusFlow.Infrastructure.Repositories
 
         public ReminderRepository(FocusFlowDbContext db) => _db = db;
 
-        public async Task<Guid> AddAsync(ReminderDto dto, CancellationToken ct = default)
+        public async Task<Guid> AddAsync(Reminder entity, CancellationToken ct = default)
         {
-            var entity = new Reminder(dto.Title, dto.FireAtUtc, dto.RelatedTaskId, dto.RelatedEmailId);
-            if (dto.Fired) entity.MarkFired();
-
             _db.Reminders.Add(entity);
             await _db.SaveChangesAsync(ct);
             return entity.Id;
         }
 
-        public async Task<ReminderDto?> GetAsync(Guid id, CancellationToken ct = default)
-        {
-            var entity = await _db.Reminders
-                .AsNoTracking()
-                .FirstOrDefaultAsync(x => x.Id == id, ct);
-
-            return entity is null ? null : MapToDto(entity);
-        }
-
-        public async Task<IReadOnlyList<ReminderDto>> GetAllAsync(CancellationToken ct = default)
+        public async Task<Reminder?> GetAsync(Guid id, CancellationToken ct = default)
         {
             return await _db.Reminders
                 .AsNoTracking()
-                .OrderBy(r => r.FireAtUtc)
-                .Select(r => MapToDto(r))
+                .FirstOrDefaultAsync(reminder => reminder.Id == id, ct);
+        }
+
+        public async Task<Reminder?> GetForUpdateAsync(Guid id, CancellationToken ct = default)
+        {
+            return await _db.Reminders
+                .FirstOrDefaultAsync(reminder => reminder.Id == id, ct);
+        }
+
+        public async Task<IReadOnlyList<Reminder>> GetAllAsync(CancellationToken ct = default)
+        {
+            return await _db.Reminders
+                .AsNoTracking()
+                .OrderBy(reminder => reminder.FireAtUtc)
                 .ToListAsync(ct);
         }
 
-        public async Task<IReadOnlyList<ReminderDto>> UpcomingAsync(DateTime untilUtc, CancellationToken ct = default)
+        public async Task<IReadOnlyList<Reminder>> UpcomingAsync(DateTime untilUtc, CancellationToken ct = default)
         {
             return await _db.Reminders
                 .AsNoTracking()
-                .Where(r => !r.Fired && r.FireAtUtc <= untilUtc)
-                .OrderBy(r => r.FireAtUtc)
-                .Select(r => MapToDto(r))
+                .Where(reminder => !reminder.Fired && reminder.FireAtUtc <= untilUtc)
+                .OrderBy(reminder => reminder.FireAtUtc)
                 .ToListAsync(ct);
         }
 
         public async Task MarkFiredAsync(Guid id, CancellationToken ct = default)
         {
-            var entity = await _db.Reminders.FirstOrDefaultAsync(x => x.Id == id, ct);
+            var entity = await GetForUpdateAsync(id, ct);
             if (entity is null) return;
 
             entity.MarkFired();
@@ -61,15 +59,12 @@ namespace FocusFlow.Infrastructure.Repositories
 
         public async Task DeleteAsync(Guid id, CancellationToken ct = default)
         {
-            var entity = await _db.Reminders.FirstOrDefaultAsync(x => x.Id == id, ct);
+            var entity = await GetForUpdateAsync(id, ct);
             if (entity is null) return;
 
             _db.Reminders.Remove(entity);
             await _db.SaveChangesAsync(ct);
         }
-
-        private static ReminderDto MapToDto(Reminder entity) =>
-            new ReminderDto(entity.Id, entity.Title, entity.FireAtUtc, entity.Fired, entity.RelatedTaskId, entity.RelatedEmailId);
     }
 }
 

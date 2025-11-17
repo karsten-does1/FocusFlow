@@ -1,5 +1,5 @@
 ﻿using FocusFlow.Core.Application.Contracts.DTOs;
-using FocusFlow.Core.Application.Contracts.Repositories;
+using FocusFlow.Core.Application.Contracts.Services;
 using Microsoft.AspNetCore.Mvc;
 
 namespace FocusFlow.Api.Controllers
@@ -8,24 +8,24 @@ namespace FocusFlow.Api.Controllers
     [Route("api/emails")]
     public sealed class EmailsController : ControllerBase
     {
-        private readonly IEmailRepository _repo;   
-        public EmailsController(IEmailRepository repo) => _repo = repo;
+        private readonly IEmailService _service;   
+        public EmailsController(IEmailService service) => _service = service;
 
         [HttpGet]
         public async Task<ActionResult<IReadOnlyList<EmailDto>>> Get([FromQuery] string? q, CancellationToken ct)
-            => Ok(await _repo.GetLatestAsync(q, ct));
+            => Ok(await _service.GetLatestAsync(q, ct));
 
         [HttpGet("{id:guid}")]
         public async Task<ActionResult<EmailDto>> GetById(Guid id, CancellationToken ct)
         {
-            var item = await _repo.GetAsync(id, ct);
+            var item = await _service.GetAsync(id, ct);
             return item is null ? NotFound() : Ok(item);
         }
 
         [HttpPost]
         public async Task<ActionResult<Guid>> Create([FromBody] EmailDto dto, CancellationToken ct)
         {
-            var id = await _repo.AddAsync(dto, ct);
+            var id = await _service.AddAsync(dto, ct);
             return Ok(id);
         }
 
@@ -33,14 +33,14 @@ namespace FocusFlow.Api.Controllers
         public async Task<IActionResult> Update(Guid id, [FromBody] EmailDto dto, CancellationToken ct)
         {
             if (id != dto.Id) return BadRequest();
-            await _repo.UpdateAsync(dto, ct);
+            await _service.UpdateAsync(dto, ct);
             return NoContent();
         }
 
         [HttpDelete("{id:guid}")]
         public async Task<IActionResult> Delete(Guid id, CancellationToken ct)
         {
-            await _repo.DeleteAsync(id, ct);
+            await _service.DeleteAsync(id, ct);
             return NoContent();
         }
     }

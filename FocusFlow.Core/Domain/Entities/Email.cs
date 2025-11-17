@@ -18,6 +18,16 @@ namespace FocusFlow.Core.Domain.Entities
             From = from ?? ""; Subject = subject ?? ""; BodyText = body ?? "";
             ReceivedUtc = receivedUtc; PriorityScore = 0;
         }
+
         public void SetPriority(int score) => PriorityScore = Math.Clamp(score, 0, 100);
+
+        public void Update(string from, string subject, string bodyText, DateTime receivedUtc, int priorityScore)
+        {
+            From = from ?? "";
+            Subject = subject ?? "";
+            BodyText = bodyText ?? "";
+            ReceivedUtc = receivedUtc;
+            SetPriority(priorityScore);
+        }
     }
 }

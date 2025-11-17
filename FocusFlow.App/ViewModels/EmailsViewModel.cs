@@ -80,7 +80,8 @@ namespace FocusFlow.App.ViewModels
             try
             {
                 IsLoadingSummary = true;
-                EmailSummary = await _summaryService.GetTextAsync(emailId);
+                var summary = await _summaryService.GetByEmailIdAsync(emailId);
+                EmailSummary = summary?.Text;
             }
             catch (Exception ex)
             {

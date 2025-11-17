@@ -1,4 +1,5 @@
-﻿using FocusFlow.Core.Application.Contracts.Repositories;
+﻿using FocusFlow.Core.Application.Contracts.DTOs;
+using FocusFlow.Core.Application.Contracts.Services;
 using Microsoft.AspNetCore.Mvc;
 
 namespace FocusFlow.Api.Controllers
@@ -7,20 +8,43 @@ namespace FocusFlow.Api.Controllers
     [Route("api/summaries")]
     public sealed class SummariesController : ControllerBase
     {
-        private readonly ISummaryRepository _repo;
-        public SummariesController(ISummaryRepository repo) => _repo = repo;
+        private readonly ISummaryService _service;
+        public SummariesController(ISummaryService service) => _service = service;
 
-        [HttpGet("{emailId:guid}")]
-        public async Task<ActionResult<string?>> Get(Guid emailId, CancellationToken ct)
-            => Ok(await _repo.GetTextAsync(emailId, ct));
+        [HttpGet("{id:guid}")]
+        public async Task<ActionResult<SummaryDto>> GetById(Guid id, CancellationToken ct)
+        {
+            var item = await _service.GetAsync(id, ct);
+            return item is null ? NotFound() : Ok(item);
+        }
+
+        [HttpGet("email/{emailId:guid}")]
+        public async Task<ActionResult<SummaryDto>> GetByEmailId(Guid emailId, CancellationToken ct)
+        {
+            var item = await _service.GetByEmailIdAsync(emailId, ct);
+            return item is null ? NotFound() : Ok(item);
+        }
 
         [HttpPost]
-        public async Task<IActionResult> Upsert([FromBody] SummaryRequest req, CancellationToken ct)
+        public async Task<ActionResult<Guid>> Create([FromBody] SummaryDto dto, CancellationToken ct)
         {
-            await _repo.UpsertAsync(req.EmailId, req.Text, ct);
+            var id = await _service.AddAsync(dto, ct);
+            return Ok(id);
+        }
+
+        [HttpPut("{id:guid}")]
+        public async Task<IActionResult> Update(Guid id, [FromBody] SummaryDto dto, CancellationToken ct)
+        {
+            if (id != dto.Id) return BadRequest();
+            await _service.UpdateAsync(dto, ct);
             return NoContent();
         }
 
-        public sealed record SummaryRequest(Guid EmailId, string Text);
+        [HttpDelete("{id:guid}")]
+        public async Task<IActionResult> Delete(Guid id, CancellationToken ct)
+        {
+            await _service.DeleteAsync(id, ct);
+            return NoContent();
+        }
     }
 }
