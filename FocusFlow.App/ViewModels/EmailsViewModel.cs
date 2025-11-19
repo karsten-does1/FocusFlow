@@ -148,7 +148,10 @@ namespace FocusFlow.App.ViewModels
                     SelectedEmail.Subject,
                     SelectedEmail.BodyText,
                     SelectedEmail.ReceivedUtc,
-                    EmailPriorityScore);
+                    EmailPriorityScore,
+                    SelectedEmail.Provider,
+                    SelectedEmail.ExternalMessageId,
+                    SelectedEmail.EmailAccountId);
 
                 await _emailService.UpdateAsync(updatedEmail);
                 await LoadEmailsAsync();

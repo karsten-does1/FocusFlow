@@ -33,7 +33,14 @@ namespace FocusFlow.Infrastructure.Services
 
         public async Task<Guid> AddAsync(EmailDto dto, CancellationToken ct = default)
         {
-            var entity = new Email(dto.From, dto.Subject, dto.BodyText, dto.ReceivedUtc);
+            var entity = new Email(
+                dto.From,
+                dto.Subject,
+                dto.BodyText,
+                dto.ReceivedUtc,
+                dto.Provider,
+                dto.ExternalMessageId,
+                dto.EmailAccountId);
             entity.SetPriority(dto.PriorityScore);
 
             return await _repository.AddAsync(entity, ct);
@@ -47,7 +54,15 @@ namespace FocusFlow.Infrastructure.Services
                 throw new InvalidOperationException($"Email with id {dto.Id} not found.");
             }
 
-            existingEntity.Update(dto.From, dto.Subject, dto.BodyText, dto.ReceivedUtc, dto.PriorityScore);
+            existingEntity.Update(
+                dto.From,
+                dto.Subject,
+                dto.BodyText,
+                dto.ReceivedUtc,
+                dto.PriorityScore,
+                dto.Provider,
+                dto.ExternalMessageId,
+                dto.EmailAccountId);
             await _repository.UpdateAsync(existingEntity, ct);
         }
 

@@ -12,7 +12,10 @@ namespace FocusFlow.Infrastructure.Mappers
                 entity.Subject,
                 entity.BodyText,
                 entity.ReceivedUtc,
-                entity.PriorityScore);
+                entity.PriorityScore,
+                entity.Provider,
+                entity.ExternalMessageId,
+                entity.EmailAccountId);
     }
 }
 
