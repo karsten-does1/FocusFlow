@@ -13,6 +13,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FocusFlow.Infrastructure", 
 EndProject
 Project("{888888A0-9F3D-457C-B088-3A5042F75D52}") = "FocusFlow.Ai", "FocusFlow.Ai\FocusFlow.Ai.pyproj", "{3C105C5B-660B-40E8-8BA7-2409A5E3F7F8}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FocusFlow.Tests", "FocusFlow.Tests\FocusFlow.Tests.csproj", "{3FEE3100-0A76-416F-B889-C34C2DF1E0CA}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -37,6 +39,10 @@ Global
 		{B5E096AB-2583-4C4E-A800-183D4ED947DF}.Release|Any CPU.Build.0 = Release|Any CPU
 		{3C105C5B-660B-40E8-8BA7-2409A5E3F7F8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{3C105C5B-660B-40E8-8BA7-2409A5E3F7F8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3FEE3100-0A76-416F-B889-C34C2DF1E0CA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3FEE3100-0A76-416F-B889-C34C2DF1E0CA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3FEE3100-0A76-416F-B889-C34C2DF1E0CA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3FEE3100-0A76-416F-B889-C34C2DF1E0CA}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
