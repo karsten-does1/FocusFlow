@@ -4,9 +4,12 @@ using FocusFlow.Core.Application.Contracts.Services;
 using FocusFlow.Infrastructure.Persistence;
 using FocusFlow.Infrastructure.Repositories;
 using FocusFlow.Infrastructure.Services;
+using FocusFlow.Infrastructure.Services.Gmail;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using System;
+using System.Text.Json;
 
 namespace FocusFlow.Infrastructure.Dependencies
 {
@@ -16,8 +19,20 @@ namespace FocusFlow.Infrastructure.Dependencies
             this IServiceCollection services, IConfiguration cfg)
         {
             var cs = cfg.GetConnectionString("FocusFlow") ?? "Data Source=../FocusFlow.Infrastructure/focusflow.db";
-            services.AddDbContext<FocusFlowDbContext>(opt => opt.UseSqlite(cs));
 
+            
+            services.AddSingleton<IEncryptionService, EncryptionService>();
+
+            services.AddDbContext<FocusFlowDbContext>((sp, options) =>
+            {
+                options.UseSqlite(cs);
+            });
+
+            services.AddHttpClient("GmailApi", client =>
+            {
+                client.BaseAddress = new Uri("https://gmail.googleapis.com/");
+                client.Timeout = TimeSpan.FromSeconds(30);
+            });
 
             services.AddScoped<IUnitOfWork, UnitOfWork>();
 
@@ -32,6 +47,11 @@ namespace FocusFlow.Infrastructure.Dependencies
             services.AddScoped<ISummaryService, SummaryService>();
             services.AddScoped<ITaskService, TaskService>();
             services.AddScoped<IReminderService, ReminderService>();
+
+            services.AddScoped<IEmailMessageParser<JsonElement>, GmailMessageParser>();
+
+            services.AddScoped<IGmailSyncService, GmailSyncService>();
+
 
             return services;
         }

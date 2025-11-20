@@ -15,17 +15,20 @@ namespace FocusFlow.App.ViewModels
         public TasksViewModel TasksViewModel { get; }
         public EmailsViewModel EmailsViewModel { get; }
         public RemindersViewModel RemindersViewModel { get; }
+        public SettingsViewModel SettingsViewModel { get; }
 
         public MainViewModel(
             DashboardViewModel dashboardViewModel,
             TasksViewModel tasksViewModel,
             EmailsViewModel emailsViewModel,
-            RemindersViewModel remindersViewModel)
+            RemindersViewModel remindersViewModel,
+            SettingsViewModel settingsViewModel)
         {
             DashboardViewModel = dashboardViewModel;
             TasksViewModel = tasksViewModel;
             EmailsViewModel = emailsViewModel;
             RemindersViewModel = remindersViewModel;
+            SettingsViewModel = settingsViewModel;
 
             CurrentViewModel = DashboardViewModel; 
             SelectedView = "Dashboard";
@@ -47,8 +50,15 @@ namespace FocusFlow.App.ViewModels
                 "Tasks" => TasksViewModel,
                 "Emails" => EmailsViewModel,
                 "Reminders" => RemindersViewModel,
+                "Settings" => SettingsViewModel,
                 _ => DashboardViewModel
             };
+
+            
+            if (viewName == "Settings")
+            {
+                SettingsViewModel.LoadAccountsCommand.ExecuteAsync(null);
+            }
         }
     }
 }

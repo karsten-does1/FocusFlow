@@ -1,5 +1,6 @@
 using System;
 using System.Collections.ObjectModel;
+using System.Linq;
 using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
@@ -16,10 +17,17 @@ namespace FocusFlow.App.ViewModels
 
         #region Properties
         [ObservableProperty]
-        private ObservableCollection<EmailDto> _emails = new();
+        private ObservableCollection<EmailItemViewModel> _emailItems = new();
 
         [ObservableProperty]
         private EmailDto? _selectedEmail;
+
+        [ObservableProperty]
+        private EmailItemViewModel? _selectedEmailItem;
+
+        public bool HasSelectedEmails => EmailItems.Any(e => e.IsSelected);
+
+        public int SelectedEmailsCount => EmailItems.Count(e => e.IsSelected);
 
         [ObservableProperty]
         private string? _searchQuery;
@@ -62,7 +70,8 @@ namespace FocusFlow.App.ViewModels
             await ExecuteAsync(async () =>
             {
                 var emails = await _emailService.GetLatestAsync(SearchQuery);
-                UpdateCollection(Emails, emails);
+                var emailItems = emails.Select(e => new EmailItemViewModel(e)).ToList();
+                UpdateCollection(EmailItems, emailItems);
             }, "Failed to load emails");
         }
 
@@ -72,6 +81,49 @@ namespace FocusFlow.App.ViewModels
             SelectedEmail = email;
             EmailPriorityScore = email.PriorityScore;
             await LoadEmailSummaryAsync(email.Id);
+        }
+
+        partial void OnSelectedEmailItemChanged(EmailItemViewModel? value)
+        {
+            SelectedEmail = value?.Email;
+            if (value != null)
+            {
+                EmailPriorityScore = value.Email.PriorityScore;
+                LoadEmailSummaryCommand.ExecuteAsync(value.Email.Id);
+            }
+        }
+
+        partial void OnEmailItemsChanged(ObservableCollection<EmailItemViewModel>? oldValue, ObservableCollection<EmailItemViewModel> newValue)
+        {
+            
+            if (oldValue != null)
+            {
+                foreach (var item in oldValue)
+                {
+                    item.PropertyChanged -= EmailItem_PropertyChanged;
+                }
+            }
+
+            
+            if (newValue != null)
+            {
+                foreach (var item in newValue)
+                {
+                    item.PropertyChanged += EmailItem_PropertyChanged;
+                }
+            }
+
+            OnPropertyChanged(nameof(HasSelectedEmails));
+            OnPropertyChanged(nameof(SelectedEmailsCount));
+        }
+
+        private void EmailItem_PropertyChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs e)
+        {
+            if (e.PropertyName == nameof(EmailItemViewModel.IsSelected))
+            {
+                OnPropertyChanged(nameof(HasSelectedEmails));
+                OnPropertyChanged(nameof(SelectedEmailsCount));
+            }
         }
 
         [RelayCommand]
@@ -172,6 +224,29 @@ namespace FocusFlow.App.ViewModels
                 await LoadEmailsAsync();
                 NotifyChanged<EmailChangedMessage>();
             }, "Failed to delete email");
+        }
+
+        [RelayCommand]
+        private async Task DeleteSelectedEmailsAsync()
+        {
+            var selectedItems = EmailItems.Where(e => e.IsSelected).ToList();
+            if (selectedItems.Count == 0) return;
+
+            await ExecuteAsync(async () =>
+            {
+                foreach (var item in selectedItems)
+                {
+                    await _emailService.DeleteAsync(item.Email.Id);
+                }
+
+                if (SelectedEmail != null && selectedItems.Any(e => e.Email.Id == SelectedEmail.Id))
+                {
+                    SelectedEmail = null;
+                }
+
+                await LoadEmailsAsync();
+                NotifyChanged<EmailChangedMessage>();
+            }, "Failed to delete selected emails");
         }
         #endregion
 

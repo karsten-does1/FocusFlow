@@ -29,6 +29,7 @@ namespace FocusFlow.App
                 var apiBase = ctx.Configuration["Api:BaseUrl"] ?? "https://localhost:7248";
 
                 services.AddHttpClient<IEmailService, EmailApi>(c => c.BaseAddress = new Uri(apiBase));
+                services.AddHttpClient<IEmailAccountService, EmailAccountApi>(c => c.BaseAddress = new Uri(apiBase));
                 services.AddHttpClient<ISummaryService, SummaryApi>(c => c.BaseAddress = new Uri(apiBase));
                 services.AddHttpClient<ITaskService, TaskApi>(c => c.BaseAddress = new Uri(apiBase));
                 services.AddHttpClient<IReminderService, ReminderApi>(c => c.BaseAddress = new Uri(apiBase));
@@ -38,6 +39,7 @@ namespace FocusFlow.App
                 services.AddTransient<ViewModels.TasksViewModel>();
                 services.AddTransient<ViewModels.EmailsViewModel>();
                 services.AddTransient<ViewModels.RemindersViewModel>();
+                services.AddTransient<ViewModels.SettingsViewModel>();
                 services.AddTransient<ViewModels.MainViewModel>();
             });
 

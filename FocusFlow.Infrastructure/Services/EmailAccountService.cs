@@ -18,27 +18,19 @@ namespace FocusFlow.Infrastructure.Services
         public async Task<IReadOnlyList<EmailAccountDto>> GetAllAsync(CancellationToken ct = default)
         {
             var entities = await _repository.GetAllAsync(ct);
-            return entities.Select(EmailAccountMapper.ToDto).ToList();
+            return entities.Select(e => MapToDto(e)).ToList();
         }
 
         public async Task<EmailAccountDto?> GetAsync(Guid id, CancellationToken ct = default)
         {
             var entity = await _repository.GetAsync(id, ct);
-            if (entity is null)
-            {
-                return null;
-            }
-            return EmailAccountMapper.ToDto(entity);
+            return entity == null ? null : MapToDto(entity);
         }
 
         public async Task<EmailAccountDto?> GetByEmailAddressAsync(string emailAddress, CancellationToken ct = default)
         {
             var entity = await _repository.GetByEmailAddressAsync(emailAddress, ct);
-            if (entity is null)
-            {
-                return null;
-            }
-            return EmailAccountMapper.ToDto(entity);
+            return entity == null ? null : MapToDto(entity);
         }
 
         public async Task<Guid> AddAsync(EmailAccountDto dto, CancellationToken ct = default)
@@ -47,8 +39,8 @@ namespace FocusFlow.Infrastructure.Services
                 dto.Provider,
                 dto.EmailAddress,
                 dto.DisplayName,
-                "", // AccessToken - wordt later gezet via UpdateTokens
-                "", // RefreshToken
+                "", 
+                "", 
                 dto.AccessTokenExpiresUtc);
 
             return await _repository.AddAsync(entity, ct);
@@ -62,9 +54,6 @@ namespace FocusFlow.Infrastructure.Services
                 throw new InvalidOperationException($"EmailAccount with id {dto.Id} not found.");
             }
 
-            // Note: DisplayName en EmailAddress kunnen niet via Update worden gewijzigd
-            // omdat EmailAccount geen Update method heeft voor deze properties
-            // Als je dit nodig hebt, moet je een Update method toevoegen aan EmailAccount entity
             await _repository.UpdateAsync(existingEntity, ct);
         }
 
@@ -83,6 +72,11 @@ namespace FocusFlow.Infrastructure.Services
         public async Task DeleteAsync(Guid id, CancellationToken ct = default)
         {
             await _repository.DeleteAsync(id, ct);
+        }
+
+        private EmailAccountDto MapToDto(EmailAccount entity)
+        {
+            return EmailAccountMapper.ToDto(entity);
         }
     }
 }

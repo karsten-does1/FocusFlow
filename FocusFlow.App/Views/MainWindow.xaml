@@ -64,6 +64,14 @@
                     Command="{Binding NavigateToCommand}"
                     CommandParameter="Reminders"
                     Content="⏰ Reminders" />
+
+                <Button
+                    Margin="0,5"
+                    Padding="10,8"
+                    HorizontalContentAlignment="Left"
+                    Command="{Binding NavigateToCommand}"
+                    CommandParameter="Settings"
+                    Content="⚙️ Settings" />
             </StackPanel>
         </Border>
 
@@ -81,6 +89,9 @@
                 </DataTemplate>
                 <DataTemplate DataType="{x:Type vm:RemindersViewModel}">
                     <views:RemindersView DataContext="{Binding}" />
+                </DataTemplate>
+                <DataTemplate DataType="{x:Type vm:SettingsViewModel}">
+                    <views:SettingsView DataContext="{Binding}" />
                 </DataTemplate>
             </ContentControl.Resources>
         </ContentControl>

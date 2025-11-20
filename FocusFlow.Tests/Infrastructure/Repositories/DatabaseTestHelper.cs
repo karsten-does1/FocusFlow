@@ -1,6 +1,9 @@
+using FocusFlow.Core.Application.Contracts.Services;
 using FocusFlow.Infrastructure.Persistence;
+using FocusFlow.Infrastructure.Services;
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 
 namespace FocusFlow.Tests.Infrastructure.Repositories;
 
@@ -15,7 +18,16 @@ public static class DatabaseTestHelper
             .UseSqlite(connection)
             .Options;
 
-        var context = new FocusFlowDbContext(options);
+        var configuration = new ConfigurationBuilder()
+            .AddInMemoryCollection(new Dictionary<string, string?>
+            {
+                { "Encryption:Key", "TestDummyKeyForUnitTestsOnly1234567890" }
+            })
+            .Build();
+
+        var encryptionService = new EncryptionService(configuration);
+
+        var context = new FocusFlowDbContext(options, encryptionService);
         context.Database.EnsureCreated();
         return context;
     }

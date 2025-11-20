@@ -109,3 +109,5 @@ coverage/
 *.codecov
 /FocusFlow.Infrastructure/focusflow.db-wal
 /FocusFlow.Infrastructure/focusflow.db-shm
+/FocusFlow.Api/appsettings.Local.json
+/FocusFlow.Api/appsettings.Local.json

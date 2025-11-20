@@ -1,3 +1,4 @@
+using FocusFlow.Api.ApiSupport.Options;
 using FocusFlow.Infrastructure.Dependencies;
 
 namespace FocusFlow.Api
@@ -8,8 +9,18 @@ namespace FocusFlow.Api
         {
             var builder = WebApplication.CreateBuilder(args);
 
+            builder.Configuration.AddJsonFile(
+                "appsettings.Local.json",
+                optional: true,
+                reloadOnChange: true);
+
             // Add services to the container.
             builder.Services.AddFocusFlowInfrastructure(builder.Configuration);
+
+            builder.Services.Configure<GoogleOAuthOptions>(
+              builder.Configuration.GetSection("GoogleOAuth"));
+
+            builder.Services.AddHttpClient();
 
             builder.Services.AddControllers();
             builder.Services.AddEndpointsApiExplorer();

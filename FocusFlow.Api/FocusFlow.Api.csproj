@@ -7,10 +7,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Folder Include="ApiSupport\" />
-  </ItemGroup>
-
-  <ItemGroup>
     <ProjectReference Include="..\FocusFlow.Core\FocusFlow.Core.csproj" />
     <ProjectReference Include="..\FocusFlow.Infrastructure\FocusFlow.Infrastructure.csproj" />
   </ItemGroup>

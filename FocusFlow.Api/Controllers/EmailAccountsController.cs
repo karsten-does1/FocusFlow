@@ -1,5 +1,6 @@
 using FocusFlow.Core.Application.Contracts.DTOs;
 using FocusFlow.Core.Application.Contracts.Services;
+using FocusFlow.Core.Domain.Enums;
 using Microsoft.AspNetCore.Mvc;
 
 namespace FocusFlow.Api.Controllers
@@ -66,5 +67,14 @@ namespace FocusFlow.Api.Controllers
         string AccessToken,
         DateTime ExpiresAtUtc,
         string? RefreshToken = null);
+    
+    public sealed class CreateEmailAccountRequest
+    {
+        public EmailProvider Provider { get; set; }
+        public string EmailAddress { get; set; } = "";
+        public string? DisplayName { get; set; }
+        public string? AccessToken { get; set; }
+        public string? RefreshToken { get; set; }
+    }
 }
 

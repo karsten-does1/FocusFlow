@@ -13,5 +13,6 @@
         <local:BooleanToStringConverter x:Key="BooleanToStringConverter" />
         <local:ZeroToVisibilityConverter x:Key="ZeroToVisibilityConverter" />
         <local:PriorityToColorConverter x:Key="PriorityToColorConverter" />
+        <local:NullToTitleConverter x:Key="NullToTitleConverter" />
     </Application.Resources>
 </Application>
