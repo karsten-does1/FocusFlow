@@ -94,6 +94,25 @@ public class EmailServiceTests : ServiceTestBase
     }
 
     [Fact]
+    public async Task CreateEmailWithProviderAndAccountId()
+    {
+        var emailId = Guid.NewGuid();
+        var accountId = Guid.NewGuid();
+        var dto = new EmailDto(emailId, "from@test.com", "Subject", "Body", DateTime.UtcNow, 50,
+            Core.Domain.Enums.EmailProvider.Gmail, "external-msg-id", accountId);
+
+        _repo.Setup(repository => repository.AddAsync(It.IsAny<Email>(), AnyCancellationToken)).ReturnsAsync(emailId);
+
+        var result = await _service.AddAsync(dto);
+
+        result.Should().Be(emailId);
+        _repo.Verify(repository => repository.AddAsync(It.Is<Email>(email =>
+            email.Provider == Core.Domain.Enums.EmailProvider.Gmail &&
+            email.EmailAccountId == accountId &&
+            email.ExternalMessageId == "external-msg-id"), AnyCancellationToken), Times.Once);
+    }
+
+    [Fact]
     public async Task UpdateEmailIfEmailExists()
     {
         var emailId = Guid.NewGuid();
@@ -109,6 +128,26 @@ public class EmailServiceTests : ServiceTestBase
         email.Subject.Should().Be("New");
         email.BodyText.Should().Be("New Body");
         email.PriorityScore.Should().Be(75);
+
+        _repo.Verify(repository => repository.UpdateAsync(email, AnyCancellationToken), Times.Once);
+    }
+
+    [Fact]
+    public async Task UpdateEmailWithProviderAndAccountId()
+    {
+        var emailId = Guid.NewGuid();
+        var accountId = Guid.NewGuid();
+        var email = new Email("old@test.com", "Old", "Old Body", DateTime.UtcNow);
+        var dto = new EmailDto(emailId, "new@test.com", "New", "New Body", DateTime.UtcNow, 75,
+            Core.Domain.Enums.EmailProvider.Outlook, "new-external-id", accountId);
+
+        _repo.Setup(repository => repository.GetForUpdateAsync(emailId, AnyCancellationToken)).ReturnsAsync(email);
+
+        await _service.UpdateAsync(dto);
+
+        email.Provider.Should().Be(Core.Domain.Enums.EmailProvider.Outlook);
+        email.EmailAccountId.Should().Be(accountId);
+        email.ExternalMessageId.Should().Be("new-external-id");
 
         _repo.Verify(repository => repository.UpdateAsync(email, AnyCancellationToken), Times.Once);
     }
