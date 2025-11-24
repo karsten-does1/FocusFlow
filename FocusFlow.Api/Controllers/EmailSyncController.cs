@@ -16,10 +16,14 @@ namespace FocusFlow.Api.Controllers
         private const int MinMaxCount = 1;
 
         private readonly IGmailSyncService _gmailSync;
+        private readonly IOutlookSyncService _outlookSync;
 
-        public EmailSyncController(IGmailSyncService gmailSync)
+        public EmailSyncController(
+            IGmailSyncService gmailSync,
+            IOutlookSyncService outlookSync)
         {
             _gmailSync = gmailSync;
+            _outlookSync = outlookSync;
         }
 
         [HttpPost("gmail/{accountId:guid}")]
@@ -28,7 +32,6 @@ namespace FocusFlow.Api.Controllers
             [FromQuery] int maxCount = DefaultMaxCount,
             CancellationToken ct = default)
         {
-            
             if (maxCount < MinMaxCount || maxCount > MaxMaxCount)
             {
                 return BadRequest(new
@@ -49,7 +52,39 @@ namespace FocusFlow.Api.Controllers
             {
                 return StatusCode(500, new
                 {
-                    error = "An error occurred during sync",
+                    error = "An error occurred during Gmail sync",
+                    message = ex.Message
+                });
+            }
+        }
+
+        [HttpPost("microsoft/{accountId:guid}")]
+        public async Task<ActionResult<EmailSyncResultDto>> SyncMicrosoft(
+            Guid accountId,
+            [FromQuery] int maxCount = DefaultMaxCount,
+            CancellationToken ct = default)
+        {
+            if (maxCount < MinMaxCount || maxCount > MaxMaxCount)
+            {
+                return BadRequest(new
+                {
+                    error = "maxCount must be between 1 and 500",
+                    min = MinMaxCount,
+                    max = MaxMaxCount,
+                    provided = maxCount
+                });
+            }
+
+            try
+            {
+                var result = await _outlookSync.SyncLatestAsync(accountId, maxCount, ct);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new
+                {
+                    error = "An error occurred during Microsoft/Outlook sync",
                     message = ex.Message
                 });
             }

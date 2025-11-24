@@ -20,6 +20,9 @@ namespace FocusFlow.Api
             builder.Services.Configure<GoogleOAuthOptions>(
               builder.Configuration.GetSection("GoogleOAuth"));
 
+            builder.Services.Configure<MicrosoftOAuthOptions>(
+             builder.Configuration.GetSection(MicrosoftOAuthOptions.SectionName));
+
             builder.Services.AddHttpClient();
 
             builder.Services.AddControllers();

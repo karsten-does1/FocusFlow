@@ -5,6 +5,7 @@ using FocusFlow.Infrastructure.Persistence;
 using FocusFlow.Infrastructure.Repositories;
 using FocusFlow.Infrastructure.Services;
 using FocusFlow.Infrastructure.Services.Gmail;
+using FocusFlow.Infrastructure.Services.Outlook;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -34,6 +35,13 @@ namespace FocusFlow.Infrastructure.Dependencies
                 client.Timeout = TimeSpan.FromSeconds(30);
             });
 
+            services.AddHttpClient("OutlookApi", client =>
+            {
+                client.BaseAddress = new Uri("https://graph.microsoft.com/v1.0/");
+                client.Timeout = TimeSpan.FromSeconds(30);
+            });
+
+
             services.AddScoped<IUnitOfWork, UnitOfWork>();
 
             services.AddScoped<IEmailRepository, EmailRepository>();
@@ -50,7 +58,10 @@ namespace FocusFlow.Infrastructure.Dependencies
 
             services.AddScoped<IEmailMessageParser<JsonElement>, GmailMessageParser>();
 
+            services.AddScoped<OutlookMessageParser>();
+
             services.AddScoped<IGmailSyncService, GmailSyncService>();
+            services.AddScoped<IOutlookSyncService, OutlookSyncService>();
 
 
             return services;
