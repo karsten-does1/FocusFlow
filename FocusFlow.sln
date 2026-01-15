@@ -1,0 +1,53 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.14.36623.8
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FocusFlow.App", "FocusFlow.App\FocusFlow.App.csproj", "{DAFACC81-B3D1-432D-B061-2918CA7C0E45}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FocusFlow.Api", "FocusFlow.Api\FocusFlow.Api.csproj", "{A81070A8-A607-4901-889D-B41E33273F97}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FocusFlow.Core", "FocusFlow.Core\FocusFlow.Core.csproj", "{E91FA60D-5970-43D1-95B8-7BDD9098CC76}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FocusFlow.Infrastructure", "FocusFlow.Infrastructure\FocusFlow.Infrastructure.csproj", "{B5E096AB-2583-4C4E-A800-183D4ED947DF}"
+EndProject
+Project("{888888A0-9F3D-457C-B088-3A5042F75D52}") = "FocusFlow.Ai", "FocusFlow.Ai\FocusFlow.Ai.pyproj", "{3C105C5B-660B-40E8-8BA7-2409A5E3F7F8}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FocusFlow.Tests", "FocusFlow.Tests\FocusFlow.Tests.csproj", "{3FEE3100-0A76-416F-B889-C34C2DF1E0CA}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{DAFACC81-B3D1-432D-B061-2918CA7C0E45}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DAFACC81-B3D1-432D-B061-2918CA7C0E45}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DAFACC81-B3D1-432D-B061-2918CA7C0E45}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DAFACC81-B3D1-432D-B061-2918CA7C0E45}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A81070A8-A607-4901-889D-B41E33273F97}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A81070A8-A607-4901-889D-B41E33273F97}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A81070A8-A607-4901-889D-B41E33273F97}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A81070A8-A607-4901-889D-B41E33273F97}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E91FA60D-5970-43D1-95B8-7BDD9098CC76}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E91FA60D-5970-43D1-95B8-7BDD9098CC76}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E91FA60D-5970-43D1-95B8-7BDD9098CC76}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E91FA60D-5970-43D1-95B8-7BDD9098CC76}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B5E096AB-2583-4C4E-A800-183D4ED947DF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B5E096AB-2583-4C4E-A800-183D4ED947DF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B5E096AB-2583-4C4E-A800-183D4ED947DF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B5E096AB-2583-4C4E-A800-183D4ED947DF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3C105C5B-660B-40E8-8BA7-2409A5E3F7F8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3C105C5B-660B-40E8-8BA7-2409A5E3F7F8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3FEE3100-0A76-416F-B889-C34C2DF1E0CA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3FEE3100-0A76-416F-B889-C34C2DF1E0CA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3FEE3100-0A76-416F-B889-C34C2DF1E0CA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3FEE3100-0A76-416F-B889-C34C2DF1E0CA}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {F8658250-8A2F-4560-93B9-D931B7064152}
+	EndGlobalSection
+EndGlobal

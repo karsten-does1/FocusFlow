@@ -1,0 +1,89 @@
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="4.0">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>3c105c5b-660b-40e8-8ba7-2409a5e3f7f8</ProjectGuid>
+    <ProjectHome>.</ProjectHome>
+    <StartupFile>main.py</StartupFile>
+    <SearchPath>
+    </SearchPath>
+    <WorkingDirectory>.</WorkingDirectory>
+    <OutputPath>.</OutputPath>
+    <Name>FocusFlow.Ai</Name>
+    <RootNamespace>FocusFlow.Ai</RootNamespace>
+    <TestFramework>Pytest</TestFramework>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
+    <DebugSymbols>true</DebugSymbols>
+    <EnableUnmanagedDebugging>false</EnableUnmanagedDebugging>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
+    <DebugSymbols>true</DebugSymbols>
+    <EnableUnmanagedDebugging>false</EnableUnmanagedDebugging>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="config.py" />
+    <Compile Include="features\email\reply\prompts.py" />
+    <Compile Include="features\email\reply\router.py" />
+    <Compile Include="features\email\reply\service.py" />
+    <Compile Include="features\email\reply\__init__.py" />
+    <Compile Include="features\email\rewrite\guards.py" />
+    <Compile Include="features\email\rewrite\language.py" />
+    <Compile Include="features\email\rewrite\prompts.py" />
+    <Compile Include="features\email\rewrite\router.py" />
+    <Compile Include="features\email\rewrite\service.py" />
+    <Compile Include="features\email\rewrite\__init__.py" />
+    <Compile Include="features\email\schemas.py" />
+    <Compile Include="features\email\tasks\guards.py" />
+    <Compile Include="features\email\tasks\parsing.py" />
+    <Compile Include="features\email\tasks\prompts.py" />
+    <Compile Include="features\email\tasks\router.py" />
+    <Compile Include="features\email\tasks\service.py" />
+    <Compile Include="features\email\tasks\__init__.py" />
+    <Compile Include="features\email\utils\email_text.py" />
+    <Compile Include="features\email\utils\reply_format.py" />
+    <Compile Include="features\email\utils\__init__.py" />
+    <Compile Include="features\email\__init__.py" />
+    <Compile Include="features\email\constants.py" />
+    <Compile Include="features\email\analysis\prompts.py" />
+    <Compile Include="features\email\analysis\router.py" />
+    <Compile Include="features\email\analysis\service.py" />
+    <Compile Include="features\email\analysis\__init__.py" />
+    <Compile Include="main.py" />
+    <Compile Include="features\__init__.py" />
+    <Compile Include="shared\ai_client.py" />
+    <Compile Include="shared\json_tools.py" />
+    <Compile Include="shared\llm_json.py" />
+    <Compile Include="shared\text_normalize.py" />
+    <Compile Include="shared\__init__.py" />
+    <Compile Include="tests\conftest.py" />
+    <Compile Include="tests\test_email_analyze.py" />
+    <Compile Include="tests\test_email_extract_tasks.py" />
+    <Compile Include="tests\test_email_reply.py" />
+    <Compile Include="tests\test_email_rewrite.py" />
+    <Compile Include="tests\__init__.py" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="features\" />
+    <Folder Include="features\email\analysis\" />
+    <Folder Include="features\email\utils\" />
+    <Folder Include="features\email\tasks\" />
+    <Folder Include="features\email\rewrite\" />
+    <Folder Include="features\email\reply\" />
+    <Folder Include="features\email\" />
+    <Folder Include="tests\" />
+    <Folder Include="shared\" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="pytest.ini" />
+  </ItemGroup>
+  <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\Python Tools\Microsoft.PythonTools.targets" />
+  <!-- Uncomment the CoreCompile target to enable the Build command in
+       Visual Studio and specify your pre- and post-build commands in
+       the BeforeBuild and AfterBuild targets below. -->
+  <!--<Target Name="CoreCompile" />-->
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+</Project>

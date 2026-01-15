@@ -1,0 +1,384 @@
+<UserControl
+    x:Class="FocusFlow.App.Views.EmailsView"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:local="clr-namespace:FocusFlow.App"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:vm="clr-namespace:FocusFlow.App.ViewModels"
+    xmlns:converters="clr-namespace:FocusFlow.App.Converters" 
+    d:DesignHeight="600"
+    d:DesignWidth="800"
+    mc:Ignorable="d">
+
+    <UserControl.Resources>
+        <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter" />
+    </UserControl.Resources>
+
+    <Grid Margin="20">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="2*" />
+            <ColumnDefinition Width="3*" />
+        </Grid.ColumnDefinitions>
+
+        <Grid Grid.Column="0" Margin="0,0,10,0">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="*" />
+            </Grid.RowDefinitions>
+
+            <StackPanel
+                Grid.Row="0"
+                Margin="0,0,0,10"
+                Orientation="Horizontal">
+
+                <TextBlock
+                    VerticalAlignment="Center"
+                    FontSize="24"
+                    FontWeight="Bold"
+                    Text="Emails" />
+
+                <Button
+                    Margin="20,0,0,0"
+                    Padding="10,5"
+                    HorizontalAlignment="Left"
+                    Background="LightBlue"
+                    Command="{Binding ShowSyncFormCommand}"
+                    Content="📥 Sync" />
+
+                <Button
+                    Margin="10,0,0,0"
+                    Padding="10,5"
+                    HorizontalAlignment="Left"
+                    Background="#FFCCCC"
+                    Command="{Binding DeleteAllEmailsCommand}"
+                    Content="💥 Delete All" />
+
+                <Button
+                    Margin="10,0,0,0"
+                    Padding="10,5"
+                    HorizontalAlignment="Left"
+                    Background="LightCoral"
+                    Command="{Binding DeleteSelectedEmailsCommand}"
+                    Content="🗑 Delete"
+                    IsEnabled="{Binding HasSelectedEmails}" />
+
+                <TextBlock
+                    Margin="10,0,0,0"
+                    VerticalAlignment="Center"
+                    Text="{Binding SelectedEmailsCount, StringFormat='{}{0} selected'}"
+                    Visibility="{Binding HasSelectedEmails, Converter={StaticResource BooleanToVisibilityConverter}}" />
+            </StackPanel>
+
+            <TextBox
+                Grid.Row="1"
+                Margin="0,0,0,10"
+                Padding="5"
+                Text="{Binding SearchQuery, UpdateSourceTrigger=PropertyChanged}">
+                <TextBox.Style>
+                    <Style TargetType="TextBox">
+                        <Setter Property="Template">
+                            <Setter.Value>
+                                <ControlTemplate TargetType="TextBox">
+                                    <Border
+                                        Padding="5"
+                                        BorderBrush="LightGray"
+                                        BorderThickness="1"
+                                        CornerRadius="3">
+                                        <ScrollViewer x:Name="PART_ContentHost" />
+                                    </Border>
+                                </ControlTemplate>
+                            </Setter.Value>
+                        </Setter>
+                    </Style>
+                </TextBox.Style>
+            </TextBox>
+
+            <ListBox
+                Grid.Row="2"
+                ItemsSource="{Binding EmailItems}"
+                SelectedItem="{Binding SelectedEmailItem}">
+                <ListBox.ItemTemplate>
+                    <DataTemplate>
+                        <Border
+                            Margin="0,5"
+                            Padding="10"
+                            BorderBrush="LightGray"
+                            BorderThickness="1"
+                            CornerRadius="5">
+                            <StackPanel Orientation="Horizontal">
+
+                                <CheckBox
+                                    Margin="0,0,10,0"
+                                    VerticalAlignment="Center"
+                                    IsChecked="{Binding IsSelected, Mode=TwoWay}"
+                                    Command="{Binding DataContext.RefreshSelectionCommand, RelativeSource={RelativeSource AncestorType=UserControl}}" />
+
+                                <StackPanel>
+                                    <TextBlock
+                                        FontWeight="Bold"
+                                        Text="{Binding Email.Subject}"
+                                        TextWrapping="Wrap" />
+                                    <TextBlock
+                                        Margin="0,5,0,0"
+                                        FontSize="12"
+                                        Foreground="Gray"
+                                        Text="{Binding Email.From}" />
+                                    <TextBlock
+                                        Margin="0,2,0,0"
+                                        FontSize="11"
+                                        Foreground="Gray"
+                                        Text="{Binding Email.ReceivedUtc, StringFormat='{}{0:dd/MM/yyyy HH:mm}'}" />
+
+                                    <TextBlock
+                                        Margin="0,2,0,0"
+                                        FontSize="11"
+                                        Visibility="{Binding Email.PriorityScore, Converter={StaticResource ZeroToVisibilityConverter}}">
+                                        <TextBlock.Text>
+                                            <MultiBinding StringFormat="Priority: {0}">
+                                                <Binding Path="Email.PriorityScore" />
+                                            </MultiBinding>
+                                        </TextBlock.Text>
+                                        <TextBlock.Foreground>
+                                            <Binding Converter="{StaticResource PriorityToColorConverter}" Path="Email.PriorityScore" />
+                                        </TextBlock.Foreground>
+                                    </TextBlock>
+                                </StackPanel>
+                            </StackPanel>
+                        </Border>
+                    </DataTemplate>
+                </ListBox.ItemTemplate>
+            </ListBox>
+        </Grid>
+
+        <Border
+            Grid.Column="1"
+            Padding="15"
+            BorderBrush="LightGray"
+            BorderThickness="1"
+            CornerRadius="5"
+            Visibility="{Binding SelectedEmail, Converter={StaticResource NullToVisibilityConverter}}">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="*" />
+                </Grid.RowDefinitions>
+
+                <TextBlock
+                    Grid.Row="0"
+                    Margin="0,0,0,15"
+                    VerticalAlignment="Center"
+                    FontSize="20"
+                    FontWeight="Bold"
+                    Text="{Binding SelectedEmail.Subject}"
+                    TextWrapping="Wrap" />
+
+                <ScrollViewer Grid.Row="1">
+                    <StackPanel>
+                        <TextBlock Margin="0,0,0,5">
+                            <Run FontWeight="Bold" Text="From:" />
+                            <Run Text="{Binding SelectedEmail.From}" />
+                        </TextBlock>
+
+                        <TextBlock Margin="0,0,0,5">
+                            <Run FontWeight="Bold" Text="Date:" />
+                            <Run Text="{Binding SelectedEmail.ReceivedUtc, StringFormat='{}{0:dd/MM/yyyy HH:mm}'}" />
+                        </TextBlock>
+
+                        <StackPanel Orientation="Horizontal" Margin="0,10,0,10">
+                            <Border Background="#EEE" CornerRadius="4" Padding="5,2" Margin="0,0,10,0">
+                                <TextBlock Text="{Binding SelectedEmail.Category, StringFormat='📂 {0}'}" FontWeight="SemiBold"/>
+                            </Border>
+                            <Border Background="#E6F3FF" CornerRadius="4" Padding="5,2">
+                                <TextBlock Text="{Binding SelectedEmail.SuggestedAction, StringFormat='⚡ {0}'}" FontWeight="SemiBold" Foreground="#0055AA"/>
+                            </Border>
+
+                            <Button Margin="20,0,0,0"
+                                    Padding="10,2"
+                                    Background="#E0F7FA"
+                                    BorderBrush="#006064"
+                                    Foreground="#006064"
+                                    Command="{Binding CreateTaskFromEmailCommand}">
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Text="📅" Margin="0,0,5,0"/>
+                                    <TextBlock Text="Maak Taak" FontWeight="Bold"/>
+                                </StackPanel>
+                            </Button>
+                        </StackPanel>
+
+                        <Separator Margin="0,10,0,10" />
+
+                        <TextBlock
+                            Margin="0,0,0,5"
+                            FontSize="16"
+                            FontWeight="Bold"
+                            Text="Priority" />
+
+                        <StackPanel Margin="0,0,0,15" Orientation="Horizontal">
+                            <Slider
+                                Width="200"
+                                Margin="0,0,10,0"
+                                Maximum="100"
+                                Minimum="0"
+                                Value="{Binding EmailPriorityScore, UpdateSourceTrigger=PropertyChanged}" />
+
+                            <TextBlock
+                                MinWidth="50"
+                                VerticalAlignment="Center"
+                                Text="{Binding EmailPriorityScore}" />
+
+                            <Button
+                                Margin="10,0,0,0"
+                                Padding="10,5"
+                                Command="{Binding UpdateEmailPriorityCommand}"
+                                Content="Update Priority" />
+                        </StackPanel>
+
+                        <Separator Margin="0,10,0,10" />
+
+                        <TextBlock
+                            Margin="0,0,0,5"
+                            FontSize="16"
+                            FontWeight="Bold"
+                            Text="Summary" />
+
+                        <TextBlock
+                            Margin="0,0,0,15"
+                            Text="{Binding EmailSummary}"
+                            TextWrapping="Wrap"
+                            Visibility="{Binding EmailSummary, Converter={StaticResource NullToVisibilityConverter}}" />
+
+                        <TextBlock
+                            Margin="0,0,0,15"
+                            Foreground="Gray"
+                            Text="No summary available"
+                            Visibility="{Binding EmailSummary, Converter={StaticResource NullToInverseVisibilityConverter}}" />
+
+                        <Separator Margin="0,10,0,10" />
+
+                        <TextBlock
+                            Margin="0,0,0,5"
+                            FontSize="16"
+                            FontWeight="Bold"
+                            Text="Body" />
+
+                        <TextBlock
+                            Margin="0,0,0,10"
+                            Text="{Binding SelectedEmail.BodyText}"
+                            TextWrapping="Wrap" />
+                    </StackPanel>
+                </ScrollViewer>
+            </Grid>
+        </Border>
+
+        <Border
+            Grid.ColumnSpan="2"
+            Width="500"
+            Padding="20"
+            HorizontalAlignment="Center"
+            VerticalAlignment="Center"
+            Background="White"
+            BorderBrush="Black"
+            BorderThickness="2"
+            CornerRadius="10"
+            Visibility="{Binding IsSyncFormVisible, Converter={StaticResource BooleanToVisibilityConverter}}">
+            <StackPanel>
+                <TextBlock
+                    Margin="0,0,0,20"
+                    FontSize="18"
+                    FontWeight="Bold"
+                    Text="Sync Emails" />
+
+                <StackPanel>
+                    <StackPanel.Style>
+                        <Style TargetType="StackPanel">
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding IsSyncing}" Value="True">
+                                    <Setter Property="IsEnabled" Value="False"/>
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </StackPanel.Style>
+
+                    <TextBlock Margin="0,0,0,5" Text="Email Account *" />
+                    <ComboBox
+                        Margin="0,0,0,15"
+                        ItemsSource="{Binding AvailableAccounts}"
+                        SelectedItem="{Binding SelectedSyncAccount}">
+                        <ComboBox.ItemTemplate>
+                            <DataTemplate>
+                                <StackPanel>
+                                    <TextBlock FontWeight="Bold" Text="{Binding DisplayName}" />
+                                    <TextBlock
+                                        FontSize="11"
+                                        Foreground="Gray"
+                                        Text="{Binding EmailAddress}" />
+                                    <TextBlock
+                                        FontSize="10"
+                                        Foreground="Gray"
+                                        Text="{Binding Provider}" />
+                                </StackPanel>
+                            </DataTemplate>
+                        </ComboBox.ItemTemplate>
+                    </ComboBox>
+
+                    <TextBlock Margin="0,0,0,5" Text="Max Count (1-500) *" />
+                    <TextBox 
+                        Margin="0,0,0,15" 
+                        Text="{Binding SyncMaxCount, UpdateSourceTrigger=PropertyChanged, TargetNullValue=20, FallbackValue=20}" />
+                </StackPanel>
+
+                <StackPanel Margin="0,0,0,15" Visibility="{Binding IsSyncing, Converter={StaticResource BooleanToVisibilityConverter}}">
+                    <TextBlock Text="⌛ Bezig met ophalen en AI Analyse..." 
+                               HorizontalAlignment="Center" 
+                               FontWeight="Bold" 
+                               Foreground="#0055AA" 
+                               Margin="0,0,0,5"/>
+                    <ProgressBar IsIndeterminate="True" Height="10" />
+                    <TextBlock Text="(Dit kan even duren)" 
+                               HorizontalAlignment="Center" 
+                               FontSize="10" 
+                               Foreground="Gray" 
+                               Margin="0,2,0,0"/>
+                </StackPanel>
+
+                <StackPanel HorizontalAlignment="Right" Orientation="Horizontal">
+                    <Button
+                        Margin="5,0"
+                        Padding="15,5"
+                        Command="{Binding CancelSyncFormCommand}"
+                        Content="Cancel">
+                        <Button.Style>
+                            <Style TargetType="Button">
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding IsSyncing}" Value="True">
+                                        <Setter Property="IsEnabled" Value="False"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Button.Style>
+                    </Button>
+
+                    <Button
+                        Margin="5,0"
+                        Padding="15,5"
+                        Background="LightGreen"
+                        Command="{Binding ExecuteSyncCommand}"
+                        Content="Sync">
+                        <Button.Style>
+                            <Style TargetType="Button">
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding IsSyncing}" Value="True">
+                                        <Setter Property="IsEnabled" Value="False"/>
+                                        <Setter Property="Content" Value="Bezig..."/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Button.Style>
+                    </Button>
+                </StackPanel>
+            </StackPanel>
+        </Border>
+    </Grid>
+</UserControl>

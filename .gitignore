@@ -1,0 +1,113 @@
+# ---- .NET build output ----
+[Bb]in/
+[Oo]bj/
+[Ll]og/
+[Tt]est[Rr]esults/
+*.user
+*.rsuser
+*.suo
+*.cache
+*.dbmdl
+*.opendb
+*.ilk
+*.obj
+*.pdb
+*.idb
+*.ipch
+*.tmp
+*.log
+*.vspscc
+*.vssscc
+*.ncb
+*.aps
+*.pch
+*.bak
+*.Backup
+*.tmp
+*.swp
+*.seed
+*.coverage
+*.orig
+
+# ---- Visual Studio ----
+.vs/
+*.VisualState.xml
+*.sln.docstates
+
+# ---- Build artifacts ----
+*.dll
+*.exe
+*.appx
+*.appxrecipe
+*.msi
+*.msix
+*.msixupload
+*.zip
+*.nupkg
+*.log
+publish/
+artifacts/
+
+# ---- NuGet ----
+*.nupkg
+*.snupkg
+*.nuspec
+packages/
+# (allow project-specific packages.config)
+!packages.config
+
+# ---- User-specific settings ----
+*.userprefs
+*.local
+*.launchSettings.json.user
+*.vscode/
+
+# ---- OS junk ----
+.DS_Store
+Thumbs.db
+ehthumbs.db
+desktop.ini
+$RECYCLE.BIN/
+
+# ---- JetBrains Rider / ReSharper ----
+.idea/
+*.DotSettings.user
+
+# ---- Python (focusflow-ai) ----
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.env/
+.venv/
+venv/
+.envrc
+*.log
+
+# ---- Docker ----
+docker-compose.override.yml
+.env.local
+*.pid
+
+# ---- Database files ----
+*.sqlite
+*.db
+focusflow.db
+MigrationsHistory/
+
+# ---- Temporary / test data ----
+/tmp/
+/data/
+/logs/
+/output/
+/_Archive/
+/Backups/
+
+# ---- Coverage / analysis ----
+coverage/
+*.coveragexml
+*.codecov
+/FocusFlow.Infrastructure/focusflow.db-wal
+/FocusFlow.Infrastructure/focusflow.db-shm
+/FocusFlow.Api/appsettings.Local.json
+/FocusFlow.Api/appsettings.Local.json
