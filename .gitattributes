@@ -1,0 +1,14 @@
+
+# Negeer Database Migraties 
+FocusFlow.Infrastructure/Migrations/* linguist-generated=true
+
+# Negeer XAML 
+*.xaml linguist-generated=true
+
+# Negeer automatisch gegenereerde files
+*.Designer.cs linguist-generated=true
+*.g.i.cs linguist-generated=true
+*.g.cs linguist-generated=true
+
+# Zorg dat Python meegeteld wordt
+*.py linguist-detectable=true
