@@ -1,20 +1,21 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
-using System.Windows;
 
 using CommunityToolkit.Mvvm.Input;
 
 using FocusFlow.App.Messages;
-using FocusFlow.App.ViewModels;
 using FocusFlow.Core.Application.Contracts.DTOs;
 using FocusFlow.Core.Domain.Enums;
 
 namespace FocusFlow.App.ViewModels.Emails
 {
-    public partial class EmailsViewModel : BaseViewModel
+    public partial class EmailsViewModel
     {
+        #region Sync Form & Execution
+
         [RelayCommand]
         private async Task ShowSyncFormAsync()
         {
@@ -71,15 +72,12 @@ namespace FocusFlow.App.ViewModels.Emails
                     IsSyncFormVisible = false;
 
                     var message = BuildSyncResultMessage(result);
-
-                    MessageBox.Show(
-                        message,
-                        "FocusFlow",
-                        MessageBoxButton.OK,
-                        MessageBoxImage.Information);
+                    _dialogService.ShowInfo(message, "FocusFlow");
 
                     await LoadEmailsAsync();
                     NotifyChanged<EmailChangedMessage>();
+
+                    RefreshMailCommands();
 
                 }, "Failed to sync emails");
             }
@@ -91,40 +89,43 @@ namespace FocusFlow.App.ViewModels.Emails
 
         private static string BuildSyncResultMessage(EmailSyncResultDto result)
         {
-            var msg = $"Sync completed: {result.Added} added, {result.Skipped} skipped, {result.Failed} failed";
+            var lines = new List<string>
+            {
+                "Sync completed:",
+                $"- {result.Added} e-mails toegevoegd",
+                $"- {result.Skipped} overgeslagen",
+                $"- {result.Failed} mislukt"
+            };
 
-            if (result.Errors != null && result.Errors.Count > 0)
-                msg += $"\nErrors: {string.Join(", ", result.Errors)}";
+            if (result.Errors is { Count: > 0 })
+            {
+                lines.Add(string.Empty);
+                lines.Add("Fouten:");
+                lines.AddRange(result.Errors.Select(e => $"- {e}"));
+            }
 
-            return msg;
+            return string.Join(Environment.NewLine, lines);
         }
 
-        [RelayCommand]
+        #endregion
+
+        #region Manual Task Creation
+
+        private bool CanCreateTaskFromEmail() => SelectedEmail != null && !IsAnyBusy;
+
+        [RelayCommand(CanExecute = nameof(CanCreateTaskFromEmail))]
         private async Task CreateTaskFromEmailAsync()
         {
             if (SelectedEmail == null) return;
 
             await ExecuteAsync(async () =>
             {
-                string rawSubject = SelectedEmail.Subject ?? "Geen onderwerp";
-                string cleanTitle = Regex.Replace(
-                    rawSubject,
-                    @"^(?:Fwd|Re|Doorst|Fw|Antw):\s*",
-                    "",
-                    RegexOptions.IgnoreCase);
-
-                string notes = EmailSummary ?? string.Empty;
-                if (string.IsNullOrWhiteSpace(notes))
-                {
-                    string bodyText = SelectedEmail.BodyText ?? string.Empty;
-                    notes = bodyText.Length > 500
-                        ? bodyText.Substring(0, 500) + "..."
-                        : bodyText;
-                }
+                string title = BuildTaskTitle(SelectedEmail.Subject);
+                string notes = BuildTaskNotes(EmailSummary, SelectedEmail.BodyText);
 
                 var newTask = new FocusTaskDto(
                     Guid.NewGuid(),
-                    cleanTitle,
+                    title,
                     notes,
                     DateTime.UtcNow.AddDays(1),
                     false,
@@ -132,12 +133,34 @@ namespace FocusFlow.App.ViewModels.Emails
 
                 await _taskService.AddAsync(newTask);
 
-                MessageBox.Show(
-                    "De taak is succesvol aangemaakt!",
-                    "FocusFlow",
-                    MessageBoxButton.OK,
-                    MessageBoxImage.Information);
+                _dialogService.ShowInfo("De taak is succesvol aangemaakt!", "FocusFlow");
+
             }, "Failed to create task from email");
         }
+
+        private static string BuildTaskTitle(string? subject)
+        {
+            var rawTitle = subject ?? "Geen onderwerp";
+
+            return Regex.Replace(
+                rawTitle,
+                @"^(?:Fwd|Re|Doorst|Fw|Antw):\s*",
+                string.Empty,
+                RegexOptions.IgnoreCase);
+        }
+
+        private static string BuildTaskNotes(string? summary, string? bodyText)
+        {
+            if (!string.IsNullOrWhiteSpace(summary))
+                return summary;
+
+            var body = bodyText ?? string.Empty;
+
+            return body.Length > 500
+                ? body[..500] + "..."
+                : body;
+        }
+
+        #endregion
     }
 }

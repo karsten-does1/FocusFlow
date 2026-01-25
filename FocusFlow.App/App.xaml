@@ -7,6 +7,7 @@
     <Application.Resources>
         <conv:BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter" />
         <conv:InverseBooleanToVisibilityConverter x:Key="InverseBooleanToVisibilityConverter" />
+        <conv:InverseBooleanConverter x:Key="InverseBooleanConverter" />
         <conv:NullToVisibilityConverter x:Key="NullToVisibilityConverter" />
         <conv:NullToInverseVisibilityConverter x:Key="NullToInverseVisibilityConverter" />
         <conv:BooleanToTextDecorationConverter x:Key="BooleanToTextDecorationConverter" />

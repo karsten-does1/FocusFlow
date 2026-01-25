@@ -73,7 +73,7 @@ def cleanup_reply_for_output(reply: str) -> str:
         cleaned_lines.append("" if not line.strip() else " ".join(line.strip().split()))
 
     cleaned = "\n".join(cleaned_lines)
-    cleaned = re.sub(r"\n{3,}", "\n\n", cleaned)  
+    cleaned = re.sub(r"\n{3,}", "\n\n", cleaned)
     return cleaned.strip()
 
 

@@ -7,10 +7,15 @@ from features.email.reply.service import draft_reply
 
 logger = logging.getLogger("focusflow.email.reply.router")
 
-router = APIRouter(prefix="/email", tags=["email-reply"])
+router = APIRouter(prefix="/email", tags=["email"])
 
 
-@router.post("/draft-reply", response_model=DraftReplyResponse)
+@router.post("/reply", response_model=DraftReplyResponse)
+@router.post(
+    "/draft-reply",
+    response_model=DraftReplyResponse,
+    include_in_schema=False,
+)
 async def draft_reply_endpoint(req: DraftReplyRequest, request: Request):
     logger.info(
         "request received (subject_len=%d body_len=%d tone=%s length=%s lang=%s)",

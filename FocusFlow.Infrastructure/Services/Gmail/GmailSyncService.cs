@@ -4,12 +4,15 @@ using System.Linq;
 using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
+
 using FocusFlow.Core.Application.Contracts.DTOs;
+using FocusFlow.Core.Application.Contracts.DTOs.Ai;
 using FocusFlow.Core.Application.Contracts.Services;
 using FocusFlow.Core.Domain.Entities;
 using FocusFlow.Core.Domain.Enums;
 using FocusFlow.Infrastructure.Persistence;
 using FocusFlow.Infrastructure.Services.TokenRefresh;
+
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 
@@ -33,8 +36,10 @@ namespace FocusFlow.Infrastructure.Services.Gmail
             GmailTokenRefreshService tokenRefreshService)
         {
             _db = db;
+
             var httpClient = httpClientFactory.CreateClient("GmailApi");
             _apiClient = new GmailApiClient(httpClient);
+
             _logger = logger;
             _messageParser = messageParser;
             _aiService = aiService;
@@ -229,8 +234,17 @@ namespace FocusFlow.Infrastructure.Services.Gmail
         {
             try
             {
-                var analysis = await _aiService.AnalyzeEmailAsync(email.Subject, email.BodyText);
-                email.SetAiAnalysis(analysis.Priority, analysis.Category, analysis.Action);
+                var request = new AnalyzeRequestDto(
+                    Subject: email.Subject ?? "",
+                    Body: email.BodyText ?? ""
+                );
+
+                var analysis = await _aiService.AnalyzeEmailAsync(request, ct);
+
+                email.SetAiAnalysis(
+                    analysis.Priority,
+                    analysis.Category,
+                    analysis.Action);
 
                 if (!string.IsNullOrWhiteSpace(analysis.Summary))
                 {
@@ -240,7 +254,10 @@ namespace FocusFlow.Infrastructure.Services.Gmail
             }
             catch (Exception ex)
             {
-                _logger.LogWarning("AI analyse mislukt voor bericht {MessageId}: {Message}", messageId, ex.Message);
+                _logger.LogWarning(
+                    "AI analyse mislukt voor bericht {MessageId}: {Message}",
+                    messageId,
+                    ex.Message);
             }
 
             _db.Emails.Add(email);
@@ -339,7 +356,15 @@ namespace FocusFlow.Infrastructure.Services.Gmail
             public int Skipped { get; set; }
             public int Failed { get; set; }
             public List<string> Errors { get; } = new();
-            public EmailSyncResultDto ToDto() => new(Added, Skipped, Failed, Errors);
+
+            public EmailSyncResultDto ToDto()
+            {
+                return new EmailSyncResultDto(
+                    Added,
+                    Skipped,
+                    Failed,
+                    Errors);
+            }
         }
     }
 }

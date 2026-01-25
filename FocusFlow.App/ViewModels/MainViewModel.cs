@@ -37,7 +37,7 @@ namespace FocusFlow.App.ViewModels
             CurrentViewModel = DashboardViewModel;
             SelectedView = "Dashboard";
 
-            // Fire-and-forget: errors worden afgehandeld door ExecuteAsync in de ViewModels
+            
             _ = DashboardViewModel.LoadDashboardCommand.ExecuteAsync(null);
             _ = TasksViewModel.LoadTasksCommand.ExecuteAsync(null);
             _ = EmailsViewModel.LoadEmailsCommand.ExecuteAsync(null);
@@ -58,7 +58,7 @@ namespace FocusFlow.App.ViewModels
                 _ => DashboardViewModel
             };
 
-            // Fire-and-forget: errors worden afgehandeld door ExecuteAsync in de ViewModels
+            
             if (viewName == "Dashboard")
                 _ = DashboardViewModel.LoadDashboardCommand.ExecuteAsync(null);
 

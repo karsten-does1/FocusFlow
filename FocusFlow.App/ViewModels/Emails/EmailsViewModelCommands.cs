@@ -1,31 +1,50 @@
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
 using CommunityToolkit.Mvvm.Input;
 
 using FocusFlow.App.Messages;
-using FocusFlow.App.ViewModels;
 using FocusFlow.Core.Application.Contracts.DTOs;
-using FocusFlow.Core.Domain.Enums;
 
 namespace FocusFlow.App.ViewModels.Emails
 {
-    public partial class EmailsViewModel : BaseViewModel
+    public partial class EmailsViewModel
     {
+        private void RefreshMailCommands()
+        {
+            UpdateEmailPriorityCommand.NotifyCanExecuteChanged();
+            DeleteEmailCommand.NotifyCanExecuteChanged();
+            DeleteSelectedEmailsCommand.NotifyCanExecuteChanged();
+            DeleteAllEmailsCommand.NotifyCanExecuteChanged();
+
+            CreateTaskFromEmailCommand.NotifyCanExecuteChanged();
+
+            RefreshAiCommands();
+        }
+
+        #region Email Load & Selection
+
         [RelayCommand]
         private async Task LoadEmailsAsync()
         {
             await ExecuteAsync(async () =>
             {
                 var emails = await _emailService.GetLatestAsync(SearchQuery);
-                var emailItems = emails.Select(e => new EmailItemViewModel(e)).ToList();
+                var items = emails.Select(e => new EmailItemViewModel(e)).ToList();
 
-                UpdateCollection(EmailItems, emailItems);
+                UpdateCollection(EmailItems, items);
+
+                SelectedEmailItem = null;
+                SelectedEmail = null;
+
+                ResetAiUiState(closePanels: true);
 
                 RefreshSelection();
+
             }, "Failed to load emails");
+
+            RefreshMailCommands();
         }
 
         [RelayCommand]
@@ -33,11 +52,15 @@ namespace FocusFlow.App.ViewModels.Emails
         {
             OnPropertyChanged(nameof(HasSelectedEmails));
             OnPropertyChanged(nameof(SelectedEmailsCount));
+
+            RefreshMailCommands();
         }
 
         partial void OnSelectedEmailItemChanged(EmailItemViewModel? value)
         {
             SelectedEmail = value?.Email;
+
+            ResetAiUiState(closePanels: true);
 
             if (value != null)
             {
@@ -47,6 +70,8 @@ namespace FocusFlow.App.ViewModels.Emails
 
                 _ = LoadEmailSummaryCommand.ExecuteAsync(value.Email.Id);
             }
+
+            RefreshMailCommands();
         }
 
         [RelayCommand]
@@ -55,7 +80,6 @@ namespace FocusFlow.App.ViewModels.Emails
             try
             {
                 IsLoadingSummary = true;
-
                 var summary = await _summaryService.GetByEmailIdAsync(emailId);
                 EmailSummary = summary?.Text;
             }
@@ -69,63 +93,20 @@ namespace FocusFlow.App.ViewModels.Emails
             }
         }
 
-        [RelayCommand]
-        private void ShowNewEmailForm()
-        {
-            IsEmailFormVisible = true;
-            EmailFrom = string.Empty;
-            EmailSubject = string.Empty;
-            EmailBody = string.Empty;
-            EmailReceivedDate = DateTime.UtcNow;
-        }
+        #endregion
 
-        [RelayCommand]
-        private void CancelEmailForm()
-        {
-            IsEmailFormVisible = false;
-        }
+        #region Email Update & Delete
 
-        [RelayCommand]
-        private async Task SaveEmailAsync()
-        {
-            if (string.IsNullOrWhiteSpace(EmailFrom) || string.IsNullOrWhiteSpace(EmailSubject))
-            {
-                ErrorMessage = "From and Subject are required";
-                return;
-            }
+        private bool CanUpdatePriority() => SelectedEmail != null && !IsAnyBusy;
 
-            await ExecuteAsync(async () =>
-            {
-                var email = new EmailDto(
-                    Guid.NewGuid(),
-                    EmailFrom,
-                    EmailSubject,
-                    EmailBody,
-                    EmailReceivedDate,
-                    0,
-                    "Overig",
-                    "Lezen",
-                    EmailProvider.Unknown,
-                    null,
-                    null);
-
-                await _emailService.AddAsync(email);
-
-                IsEmailFormVisible = false;
-
-                await LoadEmailsAsync();
-                NotifyChanged<EmailChangedMessage>();
-            }, "Failed to save email");
-        }
-
-        [RelayCommand]
+        [RelayCommand(CanExecute = nameof(CanUpdatePriority))]
         private async Task UpdateEmailPriorityAsync()
         {
             if (SelectedEmail is null) return;
 
             await ExecuteAsync(async () =>
             {
-                var updatedEmail = new EmailDto(
+                var updated = new EmailDto(
                     SelectedEmail.Id,
                     SelectedEmail.From,
                     SelectedEmail.Subject,
@@ -138,58 +119,62 @@ namespace FocusFlow.App.ViewModels.Emails
                     SelectedEmail.ExternalMessageId,
                     SelectedEmail.EmailAccountId);
 
-                await _emailService.UpdateAsync(updatedEmail);
+                await _emailService.UpdateAsync(updated);
 
                 await LoadEmailsAsync();
+                SelectedEmail = updated;
 
-                SelectedEmail = updatedEmail;
                 NotifyChanged<EmailChangedMessage>();
+
             }, "Failed to update priority");
+
+            RefreshMailCommands();
         }
 
-        [RelayCommand]
+        private bool CanDeleteEmail() => (SelectedEmail != null || HasSelectedEmails) && !IsAnyBusy;
+
+        [RelayCommand(CanExecute = nameof(CanDeleteEmail))]
         private async Task DeleteEmailAsync()
         {
-            var idsToDelete = EmailItems
+            var ids = EmailItems
                 .Where(e => e.IsSelected)
                 .Select(e => e.Email.Id)
                 .Distinct()
                 .ToList();
 
-            if (idsToDelete.Count == 0 && SelectedEmail is not null)
-            {
-                idsToDelete.Add(SelectedEmail.Id);
-            }
+            if (ids.Count == 0 && SelectedEmail is not null)
+                ids.Add(SelectedEmail.Id);
 
-            if (idsToDelete.Count == 0)
-                return;
+            if (ids.Count == 0) return;
 
             await ExecuteAsync(async () =>
             {
-                foreach (var id in idsToDelete)
-                {
+                foreach (var id in ids)
                     await _emailService.DeleteAsync(id);
-                }
 
-                if (SelectedEmail != null && idsToDelete.Contains(SelectedEmail.Id))
+                if (SelectedEmail != null && ids.Contains(SelectedEmail.Id))
                 {
                     SelectedEmail = null;
+                    SelectedEmailItem = null;
+                    ResetAiUiState(closePanels: true);
                 }
 
                 await LoadEmailsAsync();
                 NotifyChanged<EmailChangedMessage>();
 
-                RefreshSelection();
             }, "Failed to delete email(s)");
+
+            RefreshMailCommands();
         }
 
-        [RelayCommand]
-        private async Task DeleteSelectedEmailsAsync()
-        {
-            await DeleteEmailAsync();
-        }
+        private bool CanDeleteSelectedEmails() => HasSelectedEmails && !IsAnyBusy;
 
-        [RelayCommand]
+        [RelayCommand(CanExecute = nameof(CanDeleteSelectedEmails))]
+        private Task DeleteSelectedEmailsAsync() => DeleteEmailAsync();
+
+        private bool CanDeleteAllEmails() => EmailItems.Count > 0 && !IsAnyBusy;
+
+        [RelayCommand(CanExecute = nameof(CanDeleteAllEmails))]
         private async Task DeleteAllEmailsAsync()
         {
             await ExecuteAsync(async () =>
@@ -197,17 +182,22 @@ namespace FocusFlow.App.ViewModels.Emails
                 await _emailService.DeleteAllAsync();
 
                 SelectedEmail = null;
-                EmailSummary = null;
+                SelectedEmailItem = null;
+                ResetAiUiState(closePanels: true);
 
                 await LoadEmailsAsync();
                 NotifyChanged<EmailChangedMessage>();
-                RefreshSelection();
+
             }, "Failed to delete all emails");
+
+            RefreshMailCommands();
         }
 
-        partial void OnSearchQueryChanged(string? value)
-        {
-            _ = LoadEmailsCommand.ExecuteAsync(null);
-        }
+        #endregion
+
+        #region Hooks
+        partial void OnSelectedEmailChanged(EmailDto? value) => RefreshMailCommands();
+        partial void OnSearchQueryChanged(string? value) => StartSearchDebounce();
+        #endregion
     }
 }

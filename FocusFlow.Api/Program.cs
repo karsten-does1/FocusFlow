@@ -1,3 +1,4 @@
+using System.Text.Json;
 using FocusFlow.Api.ApiSupport.Options;
 using FocusFlow.Infrastructure.Dependencies;
 using FocusFlow.Infrastructure.Services.TokenRefresh;
@@ -29,7 +30,14 @@ namespace FocusFlow.Api
 
             builder.Services.AddHttpClient();
 
-            builder.Services.AddControllers();
+            // Configure JSON options to use camelCase (consistent with FastAPI)
+            builder.Services.AddControllers()
+                .AddJsonOptions(options =>
+                {
+                    options.JsonSerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.CamelCase;
+                    options.JsonSerializerOptions.PropertyNameCaseInsensitive = true;
+                });
+
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
 

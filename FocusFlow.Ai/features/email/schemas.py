@@ -1,9 +1,11 @@
-﻿from dataclasses import dataclass
+from __future__ import annotations
+
+from dataclasses import dataclass
 from typing import List, Literal, Optional
 
 from pydantic import BaseModel, Field, field_validator
 
-# interne input
+# input structure
 
 @dataclass(frozen=True)
 class EmailInput:
@@ -13,13 +15,16 @@ class EmailInput:
     received_at_utc: Optional[str] = None
     thread_hint: Optional[str] = None
 
-# Shared enums
+
+# enums
+
 Tone = Literal["Neutral", "Friendly", "Formal"]
 Length = Literal["Short", "Medium", "Long"]
 TaskPriority = Literal["High", "Medium", "Low"]
 
 
-# analyze API schemas 
+# Analyze 
+
 class AnalyzeEmailRequest(BaseModel):
     subject: str = Field(default="")
     body: str = Field(default="")
@@ -41,7 +46,8 @@ class AnalyzeEmailResponse(BaseModel):
     extractedTasks: List[TaskItem] = Field(default_factory=list)
 
 
-# draft reply API schemas
+# Draft reply 
+
 class DraftReplyRequest(BaseModel):
     subject: str = Field(default="")
     body: str = Field(default="")
@@ -71,18 +77,25 @@ class DraftReplyResponse(BaseModel):
     reply: str
 
 
-# rewrite reply API schemas 
-class RewriteReplyRequest(BaseModel):
-    subject: str = Field(default="")
-    body: str = Field(default="")
-    sender: Optional[str] = Field(default=None)
-    receivedAtUtc: Optional[str] = Field(default=None)
-    threadHint: Optional[str] = Field(default=None)
-    userDraft: str = Field(default="", description="User's rough draft reply")
-    instructions: Optional[str] = Field(default=None)
+# Compose schemas
+
+class ComposeEmailRequest(BaseModel):
+    """
+    User input / bullets => genereer een volledige mail.
+    - subject leeg => AI genereert subject
+    - subject ingevuld => AI gebruikt het (hoogstens netjes)
+    - Als replyTo velden aanwezig zijn, wordt dit gebruikt als context voor het antwoord
+    """
+    prompt: str = Field(default="", description="User input / bullets: what must be in the email")
+    subject: Optional[str] = Field(default=None, description="Optional subject. If empty => AI generates one")
+    instructions: Optional[str] = Field(default=None, description="Optional steering (korter, formeler, ...)")
     tone: Tone = "Neutral"
     length: Length = "Medium"
-    language: Optional[str] = Field(default=None)
+    language: Optional[str] = Field(default=None, description="Optional 'nl'/'en' (leave empty = auto)")
+    replyToSubject: Optional[str] = Field(default=None, description="Subject of email being replied to (for context)")
+    replyToBody: Optional[str] = Field(default=None, description="Body of email being replied to (for context)")
+    replyToSender: Optional[str] = Field(default=None, description="Sender of email being replied to (for context)")
+    replyToReceivedAtUtc: Optional[str] = Field(default=None, description="Received date of email being replied to (for context)")
 
     @field_validator("tone", mode="before")
     @classmethod
@@ -99,15 +112,14 @@ class RewriteReplyRequest(BaseModel):
         return v
 
 
-class RewriteReplyResponse(BaseModel):
-    reply: str
+class ComposeEmailResponse(BaseModel):
+    subject: str
+    body: str
 
 
-#  tasks proposals API schemas 
+# Extract tasks 
+
 class ExtractTasksRequest(BaseModel):
-    """
-    Zelfde input-shape als AnalyzeEmailRequest.
-    """
     subject: str = Field(default="")
     body: str = Field(default="")
     sender: Optional[str] = Field(default=None)
@@ -116,21 +128,15 @@ class ExtractTasksRequest(BaseModel):
 
 
 class TaskProposal(BaseModel):
-    """
-    Approval-ready taakvoorstel.
-    - dueDate: harde datum (YYYY-MM-DD) enkel als expliciet genoemd.
-    - dueText: relatieve tekst ("morgen", "vrijdag") -> wordt later door C# opgelost.
-    """
     title: str = Field(min_length=1, description="Short actionable title")
     description: str = Field(default="", description="Optional extra detail")
     priority: TaskPriority = "Medium"
 
-    dueDate: Optional[str] = Field(default=None, description="YYYY-MM-DD strict if explicit")
-    dueText: Optional[str] = Field(default=None, description="Raw time indication like 'vrijdag', 'tomorrow'")
+    dueDate: Optional[str] = Field(default=None, description="YYYY-MM-DD only if explicit")
+    dueText: Optional[str] = Field(default=None, description="Raw indication like 'vrijdag', 'tomorrow'")
 
     confidence: float = Field(default=0.7, ge=0.0, le=1.0)
-
-    sourceQuote: Optional[str] = Field(default=None, description="Proof snippet copied from the email")
+    sourceQuote: Optional[str] = Field(default=None, description="Proof snippet copied from email")
 
 
 class ExtractTasksResponse(BaseModel):

@@ -25,7 +25,6 @@ namespace FocusFlow.App.ViewModels.Tasks
         {
             IsEditing = false;
             SelectedTask = null;
-
             TaskTitle = string.Empty;
             TaskNotes = null;
             TaskDueDate = null;
@@ -41,7 +40,6 @@ namespace FocusFlow.App.ViewModels.Tasks
 
             IsEditing = true;
             SelectedTask = task;
-
             TaskTitle = task.Title;
             TaskNotes = task.Notes;
             TaskDueDate = task.DueUtc;
