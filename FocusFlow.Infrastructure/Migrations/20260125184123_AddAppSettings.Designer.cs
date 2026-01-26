@@ -3,6 +3,7 @@ using System;
 using FocusFlow.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -10,9 +11,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace FocusFlow.Infrastructure.Migrations
 {
     [DbContext(typeof(FocusFlowDbContext))]
-    partial class FocusFlowDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260125184123_AddAppSettings")]
+    partial class AddAppSettings
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "9.0.11");
@@ -28,11 +31,6 @@ namespace FocusFlow.Infrastructure.Migrations
                         .HasColumnType("INTEGER")
                         .HasDefaultValue(2);
 
-                    b.Property<bool>("BriefingNotificationsEnabled")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("INTEGER")
-                        .HasDefaultValue(true);
-
                     b.Property<int>("BriefingRemindersHours")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("INTEGER")
@@ -42,28 +40,6 @@ namespace FocusFlow.Infrastructure.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("INTEGER")
                         .HasDefaultValue(48);
-
-                    b.Property<string>("BriefingTimeLocal")
-                        .IsRequired()
-                        .ValueGeneratedOnAdd()
-                        .HasMaxLength(10)
-                        .HasColumnType("TEXT")
-                        .HasDefaultValue("09:00");
-
-                    b.Property<int>("NotificationTickSeconds")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("INTEGER")
-                        .HasDefaultValue(60);
-
-                    b.Property<bool>("NotificationsEnabled")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("INTEGER")
-                        .HasDefaultValue(true);
-
-                    b.Property<int>("ReminderUpcomingWindowMinutes")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("INTEGER")
-                        .HasDefaultValue(5);
 
                     b.HasKey("Id");
 

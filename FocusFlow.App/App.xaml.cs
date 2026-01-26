@@ -1,15 +1,20 @@
 using System;
-using System.Text.Json;
+using System.Threading.Tasks;
 using System.Windows;
+
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using FocusFlow.Core.Application.Contracts.Services;
+
 using FocusFlow.App.Services;
+using FocusFlow.App.Services.Notifications;
+
 using FocusFlow.App.ViewModels;
 using FocusFlow.App.ViewModels.Emails;
-using FocusFlow.App.ViewModels.Tasks;
 using FocusFlow.App.ViewModels.Settings;
+using FocusFlow.App.ViewModels.Tasks;
+
+using FocusFlow.Core.Application.Contracts.Services;
 
 namespace FocusFlow.App
 {
@@ -31,25 +36,25 @@ namespace FocusFlow.App
             {
                 var apiBase = ctx.Configuration["Api:BaseUrl"] ?? "https://localhost:7248";
 
-                _ = new JsonSerializerOptions
-                {
-                    PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
-                    PropertyNameCaseInsensitive = true
-                };
-
-                // Regular API clients
+                // Regular API
                 services.AddHttpClient<IEmailService, EmailApi>(c => c.BaseAddress = new Uri(apiBase));
                 services.AddHttpClient<IEmailAccountService, EmailAccountApi>(c => c.BaseAddress = new Uri(apiBase));
                 services.AddHttpClient<ISummaryService, SummaryApi>(c => c.BaseAddress = new Uri(apiBase));
                 services.AddHttpClient<ITaskService, TaskApi>(c => c.BaseAddress = new Uri(apiBase));
                 services.AddHttpClient<IReminderService, ReminderApi>(c => c.BaseAddress = new Uri(apiBase));
                 services.AddHttpClient<EmailSyncApi>(c => c.BaseAddress = new Uri(apiBase));
+                services.AddHttpClient<IBriefingService, BriefingApi>(c => c.BaseAddress = new Uri(apiBase));
+                services.AddHttpClient<SettingsApi>(c => c.BaseAddress = new Uri(apiBase));
 
-                // AI client
+                // AI 
                 services.AddHttpClient<IAiService, AiApi>(c => c.BaseAddress = new Uri(apiBase));
 
-                // Dialog service (MVVM-friendly)
+                // App 
                 services.AddSingleton<IDialogService, DialogService>();
+
+                // Notifications + scheduler
+                services.AddSingleton<INotificationService, TrayNotificationService>();
+                services.AddHostedService<NotificationSchedulerService>();
 
                 // ViewModels
                 services.AddTransient<DashboardViewModel>();
@@ -75,8 +80,21 @@ namespace FocusFlow.App
 
         protected override async void OnExit(ExitEventArgs e)
         {
-            await HostApp.StopAsync();
-            HostApp.Dispose();
+            try
+            {
+                
+                var notif = HostApp.Services.GetService<INotificationService>();
+                if (notif is IDisposable d)
+                    d.Dispose();
+
+                await HostApp.StopAsync();
+                HostApp.Dispose();
+            }
+            catch
+            {
+                // avoid throwing on shutdown
+            }
+
             base.OnExit(e);
         }
     }

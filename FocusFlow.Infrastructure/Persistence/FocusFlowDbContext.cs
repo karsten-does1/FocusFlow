@@ -14,7 +14,6 @@ namespace FocusFlow.Infrastructure.Persistence
             IEncryptionService encryptionService)
             : base(options)
         {
-          
             _tokenConverter = new ValueConverter<string, string>(
                 plain => string.IsNullOrEmpty(plain) ? string.Empty : encryptionService.Encrypt(plain),
                 cipher => string.IsNullOrEmpty(cipher) ? string.Empty : encryptionService.Decrypt(cipher));
@@ -25,6 +24,8 @@ namespace FocusFlow.Infrastructure.Persistence
         public DbSet<FocusTask> Tasks => Set<FocusTask>();
         public DbSet<Reminder> Reminders => Set<Reminder>();
         public DbSet<EmailAccount> EmailAccounts => Set<EmailAccount>();
+
+        public DbSet<AppSettings> AppSettings => Set<AppSettings>();
 
         protected override void OnModelCreating(ModelBuilder b)
         {
@@ -38,10 +39,8 @@ namespace FocusFlow.Infrastructure.Persistence
                 cfg.Property(x => x.From).HasMaxLength(320);
                 cfg.Property(x => x.Subject).HasMaxLength(500);
 
-                // NIEUW: Configuratie voor de AI velden
                 cfg.Property(x => x.Category).HasMaxLength(100);
                 cfg.Property(x => x.SuggestedAction).HasMaxLength(200);
-                // PriorityScore is een int, dat gaat automatisch goed.
 
                 cfg.Property(x => x.Provider)
                     .HasConversion<string>()
@@ -114,7 +113,25 @@ namespace FocusFlow.Infrastructure.Persistence
                 cfg.HasIndex(x => x.EmailAddress);
                 cfg.HasIndex(x => x.Provider);
             });
+
+            b.Entity<AppSettings>(cfg =>
+            {
+                cfg.ToTable("AppSettings");
+                cfg.HasKey(x => x.Id);
+
+                cfg.Property(x => x.BriefingTasksHours).HasDefaultValue(48);
+                cfg.Property(x => x.BriefingRemindersHours).HasDefaultValue(24);
+                cfg.Property(x => x.BriefingEmailsDays).HasDefaultValue(2);
+
+                cfg.Property(x => x.NotificationsEnabled).HasDefaultValue(true);
+                cfg.Property(x => x.NotificationTickSeconds).HasDefaultValue(60);
+                cfg.Property(x => x.ReminderUpcomingWindowMinutes).HasDefaultValue(5);
+                cfg.Property(x => x.BriefingNotificationsEnabled).HasDefaultValue(true);
+
+                cfg.Property(x => x.BriefingTimeLocal)
+                   .HasDefaultValue("09:00")
+                   .HasMaxLength(10);
+            });
         }
     }
 }
-

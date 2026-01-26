@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.ObjectModel;
 
 using CommunityToolkit.Mvvm.ComponentModel;
 
@@ -7,6 +6,7 @@ using FocusFlow.Core.Application.Contracts.DTOs;
 using FocusFlow.Core.Application.Contracts.Services;
 using FocusFlow.Core.Domain.Enums;
 
+using FocusFlow.App.Services;
 using Microsoft.Extensions.Configuration;
 
 namespace FocusFlow.App.ViewModels.Settings
@@ -16,10 +16,20 @@ namespace FocusFlow.App.ViewModels.Settings
         private readonly IEmailAccountService _emailAccountService;
         private readonly IConfiguration _configuration;
 
-        public SettingsViewModel(IEmailAccountService emailAccountService, IConfiguration configuration)
+    
+        private readonly SettingsApi _settingsApi;
+
+        public SettingsViewModel(
+            IEmailAccountService emailAccountService,
+            IConfiguration configuration,
+            SettingsApi settingsApi)
         {
             _emailAccountService = emailAccountService;
             _configuration = configuration;
+            _settingsApi = settingsApi;
+
+            _ = LoadBriefingSettingsCommand.ExecuteAsync(null);
+            _ = LoadNotificationSettingsCommand.ExecuteAsync(null);
         }
 
         public EmailProvider[] AvailableProviders => new[]

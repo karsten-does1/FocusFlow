@@ -1,33 +1,30 @@
+using System;
 using System.Globalization;
 using System.Windows.Media;
 
+using MediaBrush = System.Windows.Media.Brush;
+using MediaBrushes = System.Windows.Media.Brushes;
+
 namespace FocusFlow.App.Converters
 {
-    public class PriorityToColorConverter : BaseConverter
+    public sealed class PriorityToColorConverter : BaseConverter
     {
         public override object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
             if (value is not int priorityScore)
             {
-                return Brushes.Gray;
+                return MediaBrushes.Gray;
             }
 
-            if (priorityScore >= 80)
+            MediaBrush brush = priorityScore switch
             {
-                return Brushes.Red;
-            }
+                >= 80 => MediaBrushes.Red,
+                >= 50 => MediaBrushes.OrangeRed,
+                > 0 => MediaBrushes.DarkGoldenrod,
+                _ => MediaBrushes.Gray
+            };
 
-            if (priorityScore >= 50)
-            {
-                return Brushes.OrangeRed;
-            }
-
-            if (priorityScore > 0)
-            {
-                return Brushes.DarkGoldenrod;
-            }
-
-            return Brushes.Gray;
+            return brush;
         }
     }
 }

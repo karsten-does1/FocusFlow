@@ -1,21 +1,26 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
-  <PropertyGroup>
-    <OutputType>WinExe</OutputType>
-    <TargetFramework>net9.0-windows7.0</TargetFramework>
-    <Nullable>enable</Nullable>
-    <ImplicitUsings>enable</ImplicitUsings>
-    <UseWPF>true</UseWPF>
-  </PropertyGroup>
+	<PropertyGroup>
+		<OutputType>WinExe</OutputType>
+		<TargetFramework>net9.0-windows7.0</TargetFramework>
+		<Nullable>enable</Nullable>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<UseWPF>true</UseWPF>
+		<UseWindowsForms>true</UseWindowsForms>
+	</PropertyGroup>
 
-  <ItemGroup>
-    <ProjectReference Include="..\FocusFlow.Core\FocusFlow.Core.csproj" />
-  </ItemGroup>
+	<ItemGroup>
+		<Using Remove="System.Windows.Forms" />
+	</ItemGroup>
 
-  <ItemGroup>
-    <PackageReference Include="CommunityToolkit.Mvvm" Version="8.3.2" />
-    <PackageReference Include="Microsoft.Extensions.Hosting" Version="9.0.11" />
-    <PackageReference Include="Microsoft.Extensions.Http" Version="9.0.11" />
-  </ItemGroup>
+	<ItemGroup>
+		<ProjectReference Include="..\FocusFlow.Core\FocusFlow.Core.csproj" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<PackageReference Include="CommunityToolkit.Mvvm" Version="8.3.2" />
+		<PackageReference Include="Microsoft.Extensions.Hosting" Version="9.0.11" />
+		<PackageReference Include="Microsoft.Extensions.Http" Version="9.0.11" />
+	</ItemGroup>
 
 </Project>

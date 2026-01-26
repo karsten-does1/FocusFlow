@@ -13,6 +13,7 @@ using FocusFlow.Infrastructure.Services.Gmail;
 using FocusFlow.Infrastructure.Services.Outlook;
 using FocusFlow.Infrastructure.Services.TokenRefresh;
 
+
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -59,12 +60,15 @@ namespace FocusFlow.Infrastructure.Dependencies
             services.AddScoped<ITaskRepository, TaskRepository>();
             services.AddScoped<IReminderRepository, ReminderRepository>();
 
-            // Domain 
+            // Domain services
             services.AddScoped<IEmailService, EmailService>();
             services.AddScoped<IEmailAccountService, EmailAccountService>();
             services.AddScoped<ISummaryService, SummaryService>();
             services.AddScoped<ITaskService, TaskService>();
             services.AddScoped<IReminderService, ReminderService>();
+
+            // Settings
+            services.AddScoped<ISettingsService, SettingsService>();
 
             // Parsing & Sync
             services.AddScoped<IEmailMessageParser<JsonElement>, GmailMessageParser>();
@@ -77,8 +81,6 @@ namespace FocusFlow.Infrastructure.Dependencies
             services.AddScoped<GmailTokenRefreshService>();
             services.AddScoped<OutlookTokenRefreshService>();
 
-            // services.AddHostedService<TokenRefreshBackgroundService>();
-
             var aiBaseUrl = cfg["AiService:BaseUrl"];
 
             if (string.IsNullOrWhiteSpace(aiBaseUrl))
@@ -90,7 +92,6 @@ namespace FocusFlow.Infrastructure.Dependencies
                 );
             }
 
-           
             aiBaseUrl = aiBaseUrl.Trim();
             if (!aiBaseUrl.EndsWith("/", StringComparison.Ordinal))
             {
@@ -107,7 +108,6 @@ namespace FocusFlow.Infrastructure.Dependencies
             services.AddHttpClient<IAiService, PythonAiService>(client =>
             {
                 client.BaseAddress = aiUri;
-
                 client.Timeout = TimeSpan.FromSeconds(60);
             });
 
