@@ -1,20 +1,17 @@
-using System;
-using System.Threading.Tasks;
-using System.Windows;
-
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
-
 using FocusFlow.App.Services;
 using FocusFlow.App.Services.Notifications;
-
+using FocusFlow.App.Services.Speech;
 using FocusFlow.App.ViewModels;
 using FocusFlow.App.ViewModels.Emails;
 using FocusFlow.App.ViewModels.Settings;
 using FocusFlow.App.ViewModels.Tasks;
-
 using FocusFlow.Core.Application.Contracts.Services;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
+using System;
+using System.Threading.Tasks;
+using System.Windows;
 
 namespace FocusFlow.App
 {
@@ -55,6 +52,9 @@ namespace FocusFlow.App
                 // Notifications + scheduler
                 services.AddSingleton<INotificationService, TrayNotificationService>();
                 services.AddHostedService<NotificationSchedulerService>();
+                services.AddSingleton<ITextToSpeechService, TextToSpeechService>();
+
+
 
                 // ViewModels
                 services.AddTransient<DashboardViewModel>();

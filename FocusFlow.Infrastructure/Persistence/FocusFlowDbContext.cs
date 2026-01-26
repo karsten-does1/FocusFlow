@@ -131,6 +131,10 @@ namespace FocusFlow.Infrastructure.Persistence
                 cfg.Property(x => x.BriefingTimeLocal)
                    .HasDefaultValue("09:00")
                    .HasMaxLength(10);
+
+                cfg.Property(x => x.BriefingSpeechMode)
+                   .HasDefaultValue("Expanded")
+                   .HasMaxLength(20);
             });
         }
     }

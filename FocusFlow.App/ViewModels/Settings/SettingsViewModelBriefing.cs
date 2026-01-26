@@ -14,6 +14,8 @@ namespace FocusFlow.App.ViewModels.Settings
         [ObservableProperty] private int _briefingRemindersHours = 24;
         [ObservableProperty] private int _briefingEmailsDays = 2;
 
+        [ObservableProperty] private string _briefingSpeechMode = "Expanded";
+
         [ObservableProperty] private bool _isSavingBriefingSettings;
         [ObservableProperty] private bool _isLoadingBriefingSettings;
 
@@ -31,6 +33,10 @@ namespace FocusFlow.App.ViewModels.Settings
                     BriefingTasksHours = dto.Briefing.TasksHours;
                     BriefingRemindersHours = dto.Briefing.RemindersHours;
                     BriefingEmailsDays = dto.Briefing.EmailsDays;
+
+                    BriefingSpeechMode = string.IsNullOrWhiteSpace(dto.Briefing.SpeechMode)
+                        ? "Expanded"
+                        : dto.Briefing.SpeechMode;
                 }, "Failed to load briefing settings");
             }
             finally
@@ -54,7 +60,8 @@ namespace FocusFlow.App.ViewModels.Settings
                         Briefing: new BriefingSettingsDto(
                             TasksHours: BriefingTasksHours,
                             RemindersHours: BriefingRemindersHours,
-                            EmailsDays: BriefingEmailsDays
+                            EmailsDays: BriefingEmailsDays,
+                            SpeechMode: BriefingSpeechMode
                         ),
                         Notifications: current.Notifications
                     );
@@ -64,6 +71,8 @@ namespace FocusFlow.App.ViewModels.Settings
                     BriefingTasksHours = saved.Briefing.TasksHours;
                     BriefingRemindersHours = saved.Briefing.RemindersHours;
                     BriefingEmailsDays = saved.Briefing.EmailsDays;
+
+                    BriefingSpeechMode = saved.Briefing.SpeechMode;
 
                     WeakReferenceMessenger.Default.Send(BriefingSettingsSavedMessage.Instance);
 

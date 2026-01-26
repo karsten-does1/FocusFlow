@@ -133,6 +133,9 @@
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="*" />
                         <ColumnDefinition Width="Auto" />
+                        <!--  NEW  -->
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="Auto" />
                     </Grid.ColumnDefinitions>
 
                     <TextBlock
@@ -141,8 +144,10 @@
                         FontWeight="Bold"
                         Text="Daily Briefing" />
 
+                    <!--  Refresh  -->
                     <Button
                         Grid.Column="1"
+                        Margin="0,0,8,0"
                         Padding="12,6"
                         Background="#F5F5F5"
                         BorderBrush="#B0B0B0"
@@ -167,6 +172,69 @@
                                 FontSize="14"
                                 Text="⟳" />
                             <TextBlock FontWeight="SemiBold" Text="Refresh" />
+                        </StackPanel>
+                    </Button>
+
+                    <!--  NEW: Speak  -->
+                    <Button
+                        Grid.Column="2"
+                        Margin="0,0,8,0"
+                        Padding="12,6"
+                        Background="#F5F5F5"
+                        BorderBrush="#B0B0B0"
+                        BorderThickness="1"
+                        Command="{Binding SpeakBriefingCommand}"
+                        IsEnabled="{Binding CanSpeakBriefing}">
+                        <Button.Template>
+                            <ControlTemplate TargetType="Button">
+                                <Border
+                                    Padding="{TemplateBinding Padding}"
+                                    Background="{TemplateBinding Background}"
+                                    BorderBrush="{TemplateBinding BorderBrush}"
+                                    BorderThickness="{TemplateBinding BorderThickness}"
+                                    CornerRadius="16">
+                                    <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
+                                </Border>
+                            </ControlTemplate>
+                        </Button.Template>
+
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock
+                                Margin="0,0,8,0"
+                                FontSize="14"
+                                Text="🔊" />
+                            <TextBlock FontWeight="SemiBold" Text="Speak" />
+                        </StackPanel>
+                    </Button>
+
+                    <!--  NEW: Stop  -->
+                    <Button
+                        Grid.Column="3"
+                        Padding="12,6"
+                        Background="#F5F5F5"
+                        BorderBrush="#B0B0B0"
+                        BorderThickness="1"
+                        Command="{Binding StopSpeakingCommand}"
+                        IsEnabled="{Binding CanStopSpeaking}">
+                        <Button.Template>
+                            <ControlTemplate TargetType="Button">
+                                <Border
+                                    Padding="{TemplateBinding Padding}"
+                                    Background="{TemplateBinding Background}"
+                                    BorderBrush="{TemplateBinding BorderBrush}"
+                                    BorderThickness="{TemplateBinding BorderThickness}"
+                                    CornerRadius="16">
+                                    <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
+                                </Border>
+                            </ControlTemplate>
+                        </Button.Template>
+
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock
+                                Margin="0,0,8,0"
+                                FontSize="14"
+                                Text="⏹" />
+                            <TextBlock FontWeight="SemiBold" Text="Stop" />
                         </StackPanel>
                     </Button>
                 </Grid>

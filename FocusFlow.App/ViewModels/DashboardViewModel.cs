@@ -21,6 +21,8 @@ namespace FocusFlow.App.ViewModels
         private readonly IBriefingService _briefingService;
         private readonly SettingsApi _settingsApi;
 
+        private readonly ITextToSpeechService _tts;
+
         private bool _disposed;
 
         [ObservableProperty] private int _totalTasks;
@@ -47,18 +49,23 @@ namespace FocusFlow.App.ViewModels
 
         public DateTime? BriefingGeneratedAtLocal => BriefingGeneratedAtUtc?.ToLocalTime();
 
+        [ObservableProperty] private string _briefingSpeechMode = "Expanded";
+        [ObservableProperty] private bool _isSpeaking;
+
         public DashboardViewModel(
             ITaskService taskService,
             IEmailService emailService,
             IReminderService reminderService,
             IBriefingService briefingService,
-            SettingsApi settingsApi)
+            SettingsApi settingsApi,
+            ITextToSpeechService tts)
         {
             _taskService = taskService;
             _emailService = emailService;
             _reminderService = reminderService;
             _briefingService = briefingService;
             _settingsApi = settingsApi;
+            _tts = tts;
 
             WeakReferenceMessenger.Default.Register<BriefingSettingsSavedMessage>(this, async (_, __) =>
             {
@@ -112,6 +119,10 @@ namespace FocusFlow.App.ViewModels
                 BriefingRemindersHours = settings.Briefing.RemindersHours;
                 BriefingEmailsDays = settings.Briefing.EmailsDays;
 
+                BriefingSpeechMode = string.IsNullOrWhiteSpace(settings.Briefing.SpeechMode)
+                    ? "Expanded"
+                    : settings.Briefing.SpeechMode.Trim();
+
                 TasksWindowText = ToNiceDurationHours(BriefingTasksHours);
                 RemindersWindowText = ToNiceDurationHours(BriefingRemindersHours);
 
@@ -123,6 +134,76 @@ namespace FocusFlow.App.ViewModels
                 UpdateCollection(BriefingUpcomingReminders, briefing.UpcomingReminders);
 
             }, "Failed to load daily briefing");
+        }
+
+        [RelayCommand]
+        private async Task SpeakBriefingAsync()
+        {
+            if (IsSpeaking) return;
+
+            try
+            {
+                var mode = (BriefingSpeechMode ?? "Expanded").Trim();
+                if (mode.Equals("Off", StringComparison.OrdinalIgnoreCase))
+                    return;
+
+                var important = BriefingImportantEmails?.Count ?? 0;
+                var tasks = BriefingDueTasks?.Count ?? 0;
+                var reminders = BriefingUpcomingReminders?.Count ?? 0;
+
+                var text =
+                    $"Daily briefing. You have {important} important emails, {tasks} tasks, and {reminders} reminders.";
+
+                if (!mode.Equals("Simple", StringComparison.OrdinalIgnoreCase))
+                {
+                    var topMails = BriefingImportantEmails
+                        .Take(3)
+                        .Select(e => string.IsNullOrWhiteSpace(e.Subject) ? "(no subject)" : e.Subject.Trim())
+                        .Where(s => !string.IsNullOrWhiteSpace(s))
+                        .ToList();
+
+                    var topTasks = BriefingDueTasks
+                        .Take(3)
+                        .Select(t => string.IsNullOrWhiteSpace(t.Title) ? "(untitled task)" : t.Title.Trim())
+                        .Where(s => !string.IsNullOrWhiteSpace(s))
+                        .ToList();
+
+                    if (topMails.Count > 0)
+                        text += " Top important emails are: " + string.Join(". ", topMails) + ".";
+
+                    if (topTasks.Count > 0)
+                        text += " Top tasks are: " + string.Join(". ", topTasks) + ".";
+                }
+
+                ErrorMessage = null;
+
+                IsSpeaking = true;
+                try
+                {
+                    await _tts.SpeakAsync(text);
+                }
+                finally
+                {
+                    IsSpeaking = false;
+                }
+            }
+            catch (OperationCanceledException)
+            {
+                IsSpeaking = false;
+            }
+            catch
+            {
+                ErrorMessage = "Failed to speak briefing";
+                IsSpeaking = false;
+            }
+        }
+
+
+        [RelayCommand]
+        private void StopSpeaking()
+        {
+            _tts.Stop();
+            IsSpeaking = false;
         }
 
         private static string ToNiceDurationHours(int hours)

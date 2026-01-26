@@ -40,7 +40,7 @@
             Grid.Row="1"
             Margin="0,0,0,20"
             Content="Show only upcoming (next 30 days)"
-            IsChecked="{Binding ShowOnlyUpcoming}" />
+            IsChecked="{Binding ShowOnlyUpcoming, Mode=TwoWay}" />
 
         <!--  Error Message  -->
         <TextBlock
@@ -85,7 +85,8 @@
 
                                 <TextBlock Margin="0,5,0,0">
                                     <Run FontWeight="Bold" Text="Due:" />
-                                    <Run Foreground="DarkBlue" Text="{Binding FireAtUtc, StringFormat='{}{0:dd/MM/yyyy HH:mm}'}" />
+                                    <!--  IMPORTANT: FireAtLocal is read-only => OneWay  -->
+                                    <Run Foreground="DarkBlue" Text="{Binding FireAtLocal, Mode=OneWay, StringFormat='{}{0:dd/MM/yyyy HH:mm}'}" />
                                 </TextBlock>
 
                                 <TextBlock>
@@ -120,7 +121,7 @@
         <!--  Reminder Form (Overlay)  -->
         <Border
             Grid.Row="2"
-            Width="400"
+            Width="420"
             Padding="20"
             HorizontalAlignment="Center"
             VerticalAlignment="Center"
@@ -137,10 +138,26 @@
                     Text="New Reminder" />
 
                 <TextBlock Margin="0,0,0,5" Text="Title *" />
-                <TextBox Margin="0,0,0,15" Text="{Binding ReminderTitle, UpdateSourceTrigger=PropertyChanged}" />
+                <TextBox Margin="0,0,0,15" Text="{Binding ReminderTitle, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
 
                 <TextBlock Margin="0,0,0,5" Text="Fire Date &amp; Time" />
-                <DatePicker Margin="0,0,0,15" SelectedDate="{Binding ReminderFireDate}" />
+
+                <!--  Date + Time  -->
+                <Grid Margin="0,0,0,15">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="10" />
+                        <ColumnDefinition Width="90" />
+                    </Grid.ColumnDefinitions>
+
+                    <DatePicker Grid.Column="0" SelectedDate="{Binding ReminderFireDate, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+
+                    <TextBox
+                        Grid.Column="2"
+                        VerticalContentAlignment="Center"
+                        Text="{Binding ReminderFireTimeText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                        ToolTip="Time in format HH:mm (e.g. 09:30)" />
+                </Grid>
 
                 <StackPanel HorizontalAlignment="Right" Orientation="Horizontal">
                     <Button

@@ -8,6 +8,9 @@ namespace FocusFlow.Core.Application.Contracts.DTOs
         string? Notes,
         DateTime? DueUtc,
         bool IsDone,
-        Guid? RelatedEmailId);
+        Guid? RelatedEmailId)
+    {
+        public DateTime? DueLocal => DueUtc?.ToLocalTime();
+    }
 }
 

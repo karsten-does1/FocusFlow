@@ -49,6 +49,7 @@ namespace FocusFlow.Infrastructure.Services
 
             entity.BriefingNotificationsEnabled = dto.Notifications.BriefingEnabled;
             entity.BriefingTimeLocal = NormalizeTime(dto.Notifications.BriefingTimeLocal);
+            entity.BriefingSpeechMode = NormalizeSpeechMode(dto.Briefing.SpeechMode);
 
             await _db.SaveChangesAsync(ct);
             return Map(entity);
@@ -56,7 +57,7 @@ namespace FocusFlow.Infrastructure.Services
 
         private static AppSettingsDto Map(AppSettings e)
             => new(
-                new BriefingSettingsDto(e.BriefingTasksHours, e.BriefingRemindersHours, e.BriefingEmailsDays),
+                new BriefingSettingsDto(e.BriefingTasksHours, e.BriefingRemindersHours, e.BriefingEmailsDays, e.BriefingSpeechMode),
                 new NotificationSettingsDto(
                     Enabled: e.NotificationsEnabled,
                     TickSeconds: e.NotificationTickSeconds,
@@ -77,5 +78,26 @@ namespace FocusFlow.Infrastructure.Services
                 ? t.ToString(@"hh\:mm")
                 : "09:00";
         }
+
+        private static string NormalizeSpeechMode(string? input)
+        {
+            if (string.IsNullOrWhiteSpace(input))
+                return "Expanded";
+
+            var trimmed = input.Trim();
+
+            if (trimmed.Equals("Simple", System.StringComparison.OrdinalIgnoreCase))
+                return "Simple";
+
+            if (trimmed.Equals("Expanded", System.StringComparison.OrdinalIgnoreCase))
+                return "Expanded";
+
+            if (trimmed.Equals("Off", System.StringComparison.OrdinalIgnoreCase))
+                return "Off";
+
+            return "Expanded";
+        }
+
+
     }
 }

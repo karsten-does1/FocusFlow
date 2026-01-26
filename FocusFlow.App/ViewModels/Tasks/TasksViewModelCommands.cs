@@ -1,8 +1,6 @@
 using System;
 using System.Threading.Tasks;
-
 using CommunityToolkit.Mvvm.Input;
-
 using FocusFlow.App.Messages;
 using FocusFlow.Core.Application.Contracts.DTOs;
 
@@ -27,7 +25,7 @@ namespace FocusFlow.App.ViewModels.Tasks
             SelectedTask = null;
             TaskTitle = string.Empty;
             TaskNotes = null;
-            TaskDueDate = null;
+            TaskDueDate = null; 
             TaskIsDone = false;
 
             IsTaskFormVisible = true;
@@ -42,7 +40,9 @@ namespace FocusFlow.App.ViewModels.Tasks
             SelectedTask = task;
             TaskTitle = task.Title;
             TaskNotes = task.Notes;
-            TaskDueDate = task.DueUtc;
+
+            TaskDueDate = task.DueUtc?.ToLocalTime();
+
             TaskIsDone = task.IsDone;
 
             IsTaskFormVisible = true;
@@ -66,13 +66,23 @@ namespace FocusFlow.App.ViewModels.Tasks
 
             await ExecuteAsync(async () =>
             {
+                DateTime? dueUtc = null;
+                if (TaskDueDate.HasValue)
+                {
+                    var local = TaskDueDate.Value;
+                    if (local.Kind == DateTimeKind.Unspecified)
+                        local = DateTime.SpecifyKind(local, DateTimeKind.Local);
+
+                    dueUtc = local.ToUniversalTime();
+                }
+
                 if (IsEditing && SelectedTask != null)
                 {
                     var updatedTask = new FocusTaskDto(
                         SelectedTask.Id,
                         TaskTitle,
                         TaskNotes,
-                        TaskDueDate,
+                        dueUtc,
                         TaskIsDone,
                         SelectedTask.RelatedEmailId);
 
@@ -84,7 +94,7 @@ namespace FocusFlow.App.ViewModels.Tasks
                         Guid.NewGuid(),
                         TaskTitle,
                         TaskNotes,
-                        TaskDueDate,
+                        dueUtc,
                         TaskIsDone,
                         null);
 
@@ -109,7 +119,7 @@ namespace FocusFlow.App.ViewModels.Tasks
                     task.Id,
                     task.Title,
                     task.Notes,
-                    task.DueUtc,
+                    task.DueUtc, 
                     !task.IsDone,
                     task.RelatedEmailId);
 

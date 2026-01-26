@@ -15,5 +15,6 @@ namespace FocusFlow.Core.Domain.Entities
 
         public bool BriefingNotificationsEnabled { get; set; } = true;
         public string BriefingTimeLocal { get; set; } = "09:00";
+        public string BriefingSpeechMode { get; set; } = "Expanded";
     }
 }

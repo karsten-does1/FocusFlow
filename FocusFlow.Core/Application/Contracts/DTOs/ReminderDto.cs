@@ -8,6 +8,9 @@ namespace FocusFlow.Core.Application.Contracts.DTOs
         DateTime FireAtUtc,
         bool Fired, 
         Guid? RelatedTaskId, 
-        Guid? RelatedEmailId);
+        Guid? RelatedEmailId)
+    {
+        public DateTime FireAtLocal => FireAtUtc.ToLocalTime();
+    }
 }
 

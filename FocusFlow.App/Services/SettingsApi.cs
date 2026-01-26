@@ -29,7 +29,7 @@ namespace FocusFlow.App.Services
 
         public static AppSettingsDto Default()
             => new(
-                new BriefingSettingsDto(48, 24, 2),
+                new BriefingSettingsDto(48, 24, 2, "Expanded"),
                 new NotificationSettingsDto(
                     Enabled: true,
                     TickSeconds: 60,

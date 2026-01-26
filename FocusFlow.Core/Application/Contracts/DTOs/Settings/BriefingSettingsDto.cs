@@ -3,5 +3,6 @@
     public sealed record BriefingSettingsDto(
         int TasksHours,
         int RemindersHours,
-        int EmailsDays);
+        int EmailsDays,
+        string SpeechMode);
 }

@@ -50,10 +50,24 @@ namespace FocusFlow.App.Services.Notifications
             WeakReferenceMessenger.Default.Register<NotificationSettingsSavedMessage>(this, (_, __) =>
             {
                 _lastSettingsFetchUtc = DateTime.MinValue;
-
-                if (_wakeSignal.CurrentCount == 0)
-                    _wakeSignal.Release();
+                Wake();
             });
+
+            WeakReferenceMessenger.Default.Register<ReminderChangedMessage>(this, (_, __) =>
+            {
+                Wake();
+            });
+
+            WeakReferenceMessenger.Default.Register<TaskChangedMessage>(this, (_, __) =>
+            {
+                Wake();
+            });
+        }
+
+        private void Wake()
+        {
+            if (_wakeSignal.CurrentCount == 0)
+                _wakeSignal.Release();
         }
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
