@@ -133,7 +133,6 @@
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="*" />
                         <ColumnDefinition Width="Auto" />
-                        <!--  NEW  -->
                         <ColumnDefinition Width="Auto" />
                         <ColumnDefinition Width="Auto" />
                     </Grid.ColumnDefinitions>
@@ -175,7 +174,7 @@
                         </StackPanel>
                     </Button>
 
-                    <!--  NEW: Speak  -->
+                    <!--  Speak  -->
                     <Button
                         Grid.Column="2"
                         Margin="0,0,8,0"
@@ -207,7 +206,7 @@
                         </StackPanel>
                     </Button>
 
-                    <!--  NEW: Stop  -->
+                    <!--  Stop  -->
                     <Button
                         Grid.Column="3"
                         Padding="12,6"

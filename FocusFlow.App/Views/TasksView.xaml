@@ -3,9 +3,7 @@
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-    xmlns:local="clr-namespace:FocusFlow.App"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-    xmlns:vm="clr-namespace:FocusFlow.App.ViewModels"
     d:DesignHeight="600"
     d:DesignWidth="800"
     mc:Ignorable="d">
@@ -22,15 +20,16 @@
             Grid.Row="0"
             Margin="0,0,0,20"
             Orientation="Horizontal">
+
             <TextBlock
                 VerticalAlignment="Center"
                 FontSize="24"
                 FontWeight="Bold"
                 Text="Tasks" />
+
             <Button
                 Margin="20,0,0,0"
                 Padding="10,5"
-                HorizontalAlignment="Left"
                 Command="{Binding ShowNewTaskFormCommand}"
                 Content="+ New Task" />
         </StackPanel>
@@ -40,7 +39,7 @@
             Grid.Row="1"
             Margin="0,0,0,20"
             Orientation="Horizontal">
-            <!--  All tasks  -->
+
             <Button
                 Margin="0,0,10,0"
                 Padding="10,5"
@@ -48,7 +47,6 @@
                 CommandParameter="All"
                 Content="All" />
 
-            <!--  Only active (not done)  -->
             <Button
                 Margin="0,0,10,0"
                 Padding="10,5"
@@ -56,7 +54,6 @@
                 CommandParameter="Active"
                 Content="Active" />
 
-            <!--  Only completed  -->
             <Button
                 Padding="10,5"
                 Command="{Binding FilterTasksCommand}"
@@ -64,7 +61,7 @@
                 Content="Completed" />
         </StackPanel>
 
-        <!--  Error Message  -->
+        <!--  Error  -->
         <TextBlock
             Grid.Row="2"
             Margin="0,0,0,10"
@@ -72,7 +69,7 @@
             Text="{Binding ErrorMessage}"
             Visibility="{Binding ErrorMessage, Converter={StaticResource NullToVisibilityConverter}}" />
 
-        <!--  Loading Indicator  -->
+        <!--  Loading  -->
         <TextBlock
             Grid.Row="2"
             HorizontalAlignment="Center"
@@ -84,64 +81,89 @@
         <ListBox
             Grid.Row="2"
             ItemsSource="{Binding Tasks}"
+            ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+            ScrollViewer.VerticalScrollBarVisibility="Auto"
             SelectedItem="{Binding SelectedTask}"
             Visibility="{Binding IsLoading, Converter={StaticResource InverseBooleanToVisibilityConverter}}">
+
+            <ListBox.ItemContainerStyle>
+                <Style TargetType="ListBoxItem">
+                    <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+                    <Setter Property="VerticalContentAlignment" Value="Top" />
+                </Style>
+            </ListBox.ItemContainerStyle>
+
             <ListBox.ItemTemplate>
                 <DataTemplate>
                     <Border
                         Margin="0,5"
-                        Padding="10"
+                        Padding="12"
+                        HorizontalAlignment="Stretch"
                         BorderBrush="LightGray"
                         BorderThickness="1"
-                        CornerRadius="5">
+                        CornerRadius="6">
+
                         <Grid>
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="*" />
                                 <ColumnDefinition Width="Auto" />
                             </Grid.ColumnDefinitions>
 
-                            <!--  Task Info  -->
+                            <!--  Task info  -->
                             <StackPanel Grid.Column="0">
+
                                 <TextBlock
                                     FontWeight="Bold"
                                     Text="{Binding Title}"
-                                    TextDecorations="{Binding IsDone, Converter={StaticResource BooleanToTextDecorationConverter}}" />
+                                    TextDecorations="{Binding IsDone, Converter={StaticResource BooleanToTextDecorationConverter}}"
+                                    TextTrimming="CharacterEllipsis"
+                                    TextWrapping="NoWrap" />
+
                                 <TextBlock
-                                    Margin="0,5,0,0"
+                                    Margin="0,6,0,0"
                                     Foreground="Gray"
+                                    LineHeight="18"
+                                    LineStackingStrategy="BlockLineHeight"
                                     Text="{Binding Notes}"
                                     TextWrapping="Wrap"
                                     Visibility="{Binding Notes, Converter={StaticResource NullToVisibilityConverter}}" />
+
                                 <TextBlock
-                                    Margin="0,5,0,0"
+                                    Margin="0,6,0,0"
                                     Foreground="DarkBlue"
                                     Text="{Binding DueUtc, StringFormat='Due: {0:dd/MM/yyyy HH:mm}'}"
                                     Visibility="{Binding DueUtc, Converter={StaticResource NullToVisibilityConverter}}" />
                             </StackPanel>
 
                             <!--  Actions  -->
-                            <StackPanel Grid.Column="1" Orientation="Horizontal">
+                            <StackPanel
+                                Grid.Column="1"
+                                Margin="15,0,0,0"
+                                VerticalAlignment="Center"
+                                Orientation="Horizontal">
+
                                 <Button
-                                    Margin="5,0"
+                                    Margin="0,0,6,0"
                                     Padding="10,5"
                                     Command="{Binding DataContext.ShowEditTaskFormCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
                                     CommandParameter="{Binding}"
                                     Content="Edit" />
+
                                 <Button
-                                    Margin="5,0"
                                     Padding="10,5"
                                     Background="LightCoral"
                                     Command="{Binding DataContext.DeleteTaskCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
                                     CommandParameter="{Binding}"
                                     Content="Delete" />
                             </StackPanel>
+
                         </Grid>
                     </Border>
                 </DataTemplate>
             </ListBox.ItemTemplate>
         </ListBox>
 
-        <!--  Task Form (Overlay)  -->
+        <!--  Task Form Overlay  -->
         <Border
             Grid.Row="2"
             Width="400"
@@ -153,6 +175,7 @@
             BorderThickness="2"
             CornerRadius="10"
             Visibility="{Binding IsTaskFormVisible, Converter={StaticResource BooleanToVisibilityConverter}}">
+
             <StackPanel>
                 <TextBlock
                     Margin="0,0,0,20"
@@ -160,10 +183,10 @@
                     FontWeight="Bold"
                     Text="{Binding IsEditing, Converter={StaticResource BooleanToStringConverter}, ConverterParameter='Edit Task|New Task'}" />
 
-                <TextBlock Margin="0,0,0,5" Text="Title *" />
+                <TextBlock Text="Title *" />
                 <TextBox Margin="0,0,0,15" Text="{Binding TaskTitle, UpdateSourceTrigger=PropertyChanged}" />
 
-                <TextBlock Margin="0,0,0,5" Text="Notes" />
+                <TextBlock Text="Notes" />
                 <TextBox
                     Height="100"
                     Margin="0,0,0,15"
@@ -171,7 +194,7 @@
                     Text="{Binding TaskNotes, UpdateSourceTrigger=PropertyChanged}"
                     TextWrapping="Wrap" />
 
-                <TextBlock Margin="0,0,0,5" Text="Due Date" />
+                <TextBlock Text="Due Date" />
                 <DatePicker Margin="0,0,0,15" SelectedDate="{Binding TaskDueDate}" />
 
                 <CheckBox
@@ -185,6 +208,7 @@
                         Padding="15,5"
                         Command="{Binding CancelTaskFormCommand}"
                         Content="Cancel" />
+
                     <Button
                         Margin="5,0"
                         Padding="15,5"
@@ -194,5 +218,6 @@
                 </StackPanel>
             </StackPanel>
         </Border>
+
     </Grid>
 </UserControl>

@@ -111,7 +111,7 @@
                                                     <TextBlock
                                                         FontSize="11"
                                                         Foreground="Gray"
-                                                        Text="{Binding ConnectedAtUtc, StringFormat='{}{0:dd/MM/yyyy HH:mm}'}" />
+                                                        Text="{Binding ConnectedAtLocal, StringFormat='{}{0:dd/MM/yyyy HH:mm}'}" />
                                                 </StackPanel>
                                                 <StackPanel Margin="0,5,0,0" Orientation="Horizontal">
                                                     <TextBlock
@@ -121,7 +121,7 @@
                                                     <TextBlock
                                                         FontSize="11"
                                                         Foreground="Gray"
-                                                        Text="{Binding AccessTokenExpiresUtc, StringFormat='{}{0:dd/MM/yyyy HH:mm}'}" />
+                                                        Text="{Binding AccessTokenExpiresLocal, StringFormat='{}{0:dd/MM/yyyy HH:mm}'}" />
                                                 </StackPanel>
                                             </StackPanel>
 
@@ -151,7 +151,7 @@
                             HorizontalAlignment="Center"
                             Foreground="Gray"
                             Text="No email accounts connected"
-                            Visibility="{Binding EmailAccounts.Count, Converter={StaticResource ZeroToVisibilityConverter}}" />
+                            Visibility="{Binding HasEmailAccounts, Converter={StaticResource InverseBooleanToVisibilityConverter}}" />
                     </StackPanel>
                 </Border>
 
@@ -168,13 +168,15 @@
                             Margin="0,0,0,10"
                             FontSize="18"
                             FontWeight="Bold"
-                            Text="Daily Briefing" />
+                            Text="Daily Briefing"
+                            ToolTip="Configure what information is included in the dashboard briefing." />
 
                         <TextBlock
                             Margin="0,0,0,15"
                             Foreground="Gray"
                             Text="Configure how far the dashboard looks ahead for tasks, reminders and emails."
-                            TextWrapping="Wrap" />
+                            TextWrapping="Wrap"
+                            ToolTip="These settings affect what you see on the dashboard and what the daily briefing summary includes." />
 
                         <Grid>
                             <Grid.ColumnDefinitions>
@@ -185,7 +187,6 @@
                                 <RowDefinition Height="Auto" />
                                 <RowDefinition Height="Auto" />
                                 <RowDefinition Height="Auto" />
-                                <!--  NEW  -->
                                 <RowDefinition Height="Auto" />
                             </Grid.RowDefinitions>
 
@@ -193,13 +194,15 @@
                                 Grid.Row="0"
                                 Grid.Column="0"
                                 VerticalAlignment="Center"
-                                Text="Tasks window" />
+                                Text="Tasks window"
+                                ToolTip="How far ahead FocusFlow includes tasks in the dashboard and daily briefing." />
                             <ComboBox
                                 Grid.Row="0"
                                 Grid.Column="1"
                                 Width="160"
                                 SelectedValue="{Binding BriefingTasksHours}"
-                                SelectedValuePath="Tag">
+                                SelectedValuePath="Tag"
+                                ToolTip="Example: 48 hours means tasks due within the next 48 hours are included.">
                                 <ComboBoxItem Content="24 hours" Tag="24" />
                                 <ComboBoxItem Content="48 hours" Tag="48" />
                                 <ComboBoxItem Content="72 hours" Tag="72" />
@@ -211,14 +214,16 @@
                                 Grid.Column="0"
                                 Margin="0,10,0,0"
                                 VerticalAlignment="Center"
-                                Text="Reminders window" />
+                                Text="Reminders window"
+                                ToolTip="How far ahead FocusFlow includes reminders in the dashboard and daily briefing." />
                             <ComboBox
                                 Grid.Row="1"
                                 Grid.Column="1"
                                 Width="160"
                                 Margin="0,10,0,0"
                                 SelectedValue="{Binding BriefingRemindersHours}"
-                                SelectedValuePath="Tag">
+                                SelectedValuePath="Tag"
+                                ToolTip="Example: 12 hours means reminders scheduled within the next 12 hours are included.">
                                 <ComboBoxItem Content="1 hour" Tag="1" />
                                 <ComboBoxItem Content="6 hours" Tag="6" />
                                 <ComboBoxItem Content="12 hours" Tag="12" />
@@ -231,34 +236,38 @@
                                 Grid.Column="0"
                                 Margin="0,10,0,0"
                                 VerticalAlignment="Center"
-                                Text="Emails lookback" />
+                                Text="Emails lookback"
+                                ToolTip="How many days back FocusFlow looks when counting and summarizing emails for the briefing." />
                             <ComboBox
                                 Grid.Row="2"
                                 Grid.Column="1"
                                 Width="160"
                                 Margin="0,10,0,0"
                                 SelectedValue="{Binding BriefingEmailsDays}"
-                                SelectedValuePath="Tag">
+                                SelectedValuePath="Tag"
+                                ToolTip="Example: 7 days means only emails from the last 7 days are considered.">
                                 <ComboBoxItem Content="1 day" Tag="1" />
                                 <ComboBoxItem Content="2 days" Tag="2" />
                                 <ComboBoxItem Content="7 days" Tag="7" />
                                 <ComboBoxItem Content="14 days" Tag="14" />
                             </ComboBox>
 
-                            <!--  NEW: Briefing speech mode  -->
+                            <!--  Briefing speech mode  -->
                             <TextBlock
                                 Grid.Row="3"
                                 Grid.Column="0"
                                 Margin="0,10,0,0"
                                 VerticalAlignment="Center"
-                                Text="Briefing speech" />
+                                Text="Briefing speech"
+                                ToolTip="Controls how much detail FocusFlow reads out loud when using text-to-speech." />
                             <ComboBox
                                 Grid.Row="3"
                                 Grid.Column="1"
                                 Width="160"
                                 Margin="0,10,0,0"
                                 SelectedValue="{Binding BriefingSpeechMode}"
-                                SelectedValuePath="Tag">
+                                SelectedValuePath="Tag"
+                                ToolTip="Off: no speech. Simple: short summary. Expanded: more details.">
                                 <ComboBoxItem Content="Off" Tag="Off" />
                                 <ComboBoxItem Content="Simple" Tag="Simple" />
                                 <ComboBoxItem Content="Expanded" Tag="Expanded" />
@@ -273,12 +282,14 @@
                                 Margin="0,0,10,0"
                                 Padding="12,6"
                                 Command="{Binding LoadBriefingSettingsCommand}"
-                                Content="Reload" />
+                                Content="Reload"
+                                ToolTip="Reload the last saved daily briefing settings." />
                             <Button
                                 Padding="12,6"
                                 Background="LightGreen"
                                 Command="{Binding SaveBriefingSettingsCommand}"
-                                Content="Save" />
+                                Content="Save"
+                                ToolTip="Save daily briefing settings. Changes apply immediately." />
                         </StackPanel>
                     </StackPanel>
                 </Border>

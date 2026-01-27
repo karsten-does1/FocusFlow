@@ -1,6 +1,8 @@
 using System;
 using System.Collections.ObjectModel;
 using System.Globalization;
+using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
@@ -14,11 +16,29 @@ namespace FocusFlow.App.ViewModels
     {
         private readonly IReminderService _reminderService;
 
-        [ObservableProperty]
-        private ObservableCollection<ReminderDto> _reminders = new();
+        private enum ReminderFilter
+        {
+            All,
+            Upcoming,
+            NextDays,
+            Done
+        }
 
         [ObservableProperty]
-        private bool _showOnlyUpcoming = true;
+        private ObservableCollection<ReminderDto> _remindersView = new();
+
+        [ObservableProperty]
+        private int _shownCount;
+
+        [ObservableProperty]
+        private ObservableCollection<int> _nextDaysOptions = new(new[] { 1, 3, 7, 14, 30 });
+
+        [ObservableProperty]
+        private int _selectedNextDays = 1;
+
+        private ReminderFilter _filter = ReminderFilter.Upcoming;
+
+        private bool _sortByDate;
 
         [ObservableProperty]
         private bool _isReminderFormVisible;
@@ -38,6 +58,8 @@ namespace FocusFlow.App.ViewModels
         [ObservableProperty]
         private Guid? _relatedEmailId;
 
+        private IReadOnlyList<ReminderDto> _allReminders = Array.Empty<ReminderDto>();
+
         public RemindersViewModel(IReminderService reminderService)
         {
             _reminderService = reminderService;
@@ -49,13 +71,92 @@ namespace FocusFlow.App.ViewModels
         {
             await ExecuteAsync(async () =>
             {
-                var untilDate = ShowOnlyUpcoming
-                    ? DateTime.UtcNow.AddDays(30)
-                    : DateTime.MaxValue;
-
-                var reminders = await _reminderService.UpcomingAsync(untilDate);
-                UpdateCollection(Reminders, reminders);
+                _allReminders = await _reminderService.GetAllAsync(CancellationToken.None);
+                ApplyFilter();
             }, "Failed to load reminders");
+        }
+
+        [RelayCommand]
+        private void SetFilterAll()
+        {
+            ToggleSortIfSameFilter(ReminderFilter.All);
+            ApplyFilter();
+        }
+
+        [RelayCommand]
+        private void SetFilterUpcoming()
+        {
+            ToggleSortIfSameFilter(ReminderFilter.Upcoming);
+            ApplyFilter();
+        }
+
+        [RelayCommand]
+        private void SetFilterNextDays()
+        {
+            ToggleSortIfSameFilter(ReminderFilter.NextDays);
+            ApplyFilter();
+        }
+
+        [RelayCommand]
+        private void SetFilterDone()
+        {
+            ToggleSortIfSameFilter(ReminderFilter.Done);
+            ApplyFilter();
+        }
+
+        private void ToggleSortIfSameFilter(ReminderFilter requested)
+        {
+            if (_filter == requested)
+            {
+                _sortByDate = !_sortByDate;
+                return;
+            }
+
+            _filter = requested;
+            _sortByDate = false;
+        }
+
+        partial void OnSelectedNextDaysChanged(int value)
+        {
+            if (_filter == ReminderFilter.NextDays)
+            {
+                ApplyFilter();
+            }
+        }
+
+        private void ApplyFilter()
+        {
+            var nowUtc = DateTime.UtcNow;
+            var maxUtc = nowUtc.AddDays(Math.Max(1, SelectedNextDays));
+
+            var query = _allReminders.AsEnumerable();
+
+            switch (_filter)
+            {
+                case ReminderFilter.All:
+                    break;
+
+                case ReminderFilter.Upcoming:
+                    query = query.Where(r => !r.Fired && r.FireAtUtc >= nowUtc);
+                    break;
+
+                case ReminderFilter.NextDays:
+                    query = query.Where(r => !r.Fired && r.FireAtUtc >= nowUtc && r.FireAtUtc <= maxUtc);
+                    break;
+
+                case ReminderFilter.Done:
+                    query = query.Where(r => r.Fired);
+                    break;
+            }
+
+            if (_sortByDate)
+            {
+                query = query.OrderBy(r => r.FireAtUtc);
+            }
+
+            var list = query.ToList();
+            UpdateCollection(RemindersView, list);
+            ShownCount = list.Count;
         }
 
         [RelayCommand]
@@ -75,7 +176,6 @@ namespace FocusFlow.App.ViewModels
         private void ResetReminderFormDefaults()
         {
             var now = DateTime.Now;
-
             ReminderFireDate = now.Date;
             ReminderFireTimeText = now.ToString("HH:mm");
         }
@@ -121,10 +221,10 @@ namespace FocusFlow.App.ViewModels
                 await _reminderService.AddAsync(reminder);
 
                 IsReminderFormVisible = false;
+
                 await LoadRemindersAsync();
 
                 NotifyChanged<ReminderChangedMessage>();
-
             }, "Failed to save reminder");
         }
 
@@ -139,7 +239,7 @@ namespace FocusFlow.App.ViewModels
         }
 
         [RelayCommand]
-        private async Task MarkFiredAsync(ReminderDto reminder)
+        private async Task MarkDoneAsync(ReminderDto reminder)
         {
             if (reminder == null) return;
 
@@ -148,7 +248,7 @@ namespace FocusFlow.App.ViewModels
                 await _reminderService.MarkFiredAsync(reminder.Id);
                 await LoadRemindersAsync();
                 NotifyChanged<ReminderChangedMessage>();
-            }, "Failed to mark reminder as fired");
+            }, "Failed to mark reminder as done");
         }
 
         [RelayCommand]
@@ -162,11 +262,6 @@ namespace FocusFlow.App.ViewModels
                 await LoadRemindersAsync();
                 NotifyChanged<ReminderChangedMessage>();
             }, "Failed to delete reminder");
-        }
-
-        partial void OnShowOnlyUpcomingChanged(bool value)
-        {
-            _ = LoadRemindersCommand.ExecuteAsync(null);
         }
     }
 }

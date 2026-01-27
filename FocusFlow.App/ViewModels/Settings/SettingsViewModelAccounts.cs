@@ -14,6 +14,8 @@ namespace FocusFlow.App.ViewModels.Settings
         [ObservableProperty]
         private ObservableCollection<EmailAccountDto> _emailAccounts = new();
 
+        public bool HasEmailAccounts => EmailAccounts.Count > 0;
+
         [ObservableProperty]
         private EmailAccountDto? _selectedAccount;
 
@@ -43,6 +45,9 @@ namespace FocusFlow.App.ViewModels.Settings
                 {
                     var accounts = await _emailAccountService.GetAllAsync();
                     UpdateCollection(EmailAccounts, accounts);
+
+                    OnPropertyChanged(nameof(HasEmailAccounts));
+
                 }, "Failed to load email accounts");
             }
             finally

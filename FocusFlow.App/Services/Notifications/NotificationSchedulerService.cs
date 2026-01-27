@@ -34,6 +34,8 @@ namespace FocusFlow.App.Services.Notifications
 
         private string _lastBriefingTimeLocalString = "09:00";
 
+        private bool _startupBriefingPolicyApplied;
+
         public NotificationSchedulerService(
             SettingsApi settingsApi,
             IReminderService reminderService,
@@ -81,6 +83,12 @@ namespace FocusFlow.App.Services.Notifications
                 {
                     await RefreshSettingsIfNeededAsync(stoppingToken);
 
+                    if (!_startupBriefingPolicyApplied)
+                    {
+                        ApplyStartupBriefingPolicy();
+                        _startupBriefingPolicyApplied = true;
+                    }
+
                     if (_enabled)
                     {
                         await CheckRemindersAsync(stoppingToken);
@@ -106,6 +114,22 @@ namespace FocusFlow.App.Services.Notifications
                 {
                     break;
                 }
+            }
+        }
+
+        private void ApplyStartupBriefingPolicy()
+        {
+            if (!_enabled || !_briefingEnabled)
+                return;
+
+            var nowLocal = DateTime.Now;
+            var todayLocal = DateOnly.FromDateTime(nowLocal);
+
+            var triggerLocal = nowLocal.Date.Add(_briefingTimeLocal);
+
+            if (nowLocal >= triggerLocal)
+            {
+                _lastBriefingDateLocal = todayLocal;
             }
         }
 

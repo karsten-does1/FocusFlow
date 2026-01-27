@@ -6,6 +6,7 @@ using CommunityToolkit.Mvvm.Input;
 
 using FocusFlow.App.Messages;
 using FocusFlow.Core.Application.Contracts.DTOs;
+using FocusFlow.Core.Domain.Enums;
 
 namespace FocusFlow.App.ViewModels.Emails
 {
@@ -31,6 +32,17 @@ namespace FocusFlow.App.ViewModels.Emails
             await ExecuteAsync(async () =>
             {
                 var emails = await _emailService.GetLatestAsync(SearchQuery);
+
+                emails = SelectedSortOption switch
+                {
+                    EmailSortOption.Oldest => emails.OrderBy(e => e.ReceivedUtc).ToList(),
+                    EmailSortOption.HighestPriority => emails
+                        .OrderByDescending(e => e.PriorityScore)
+                        .ThenByDescending(e => e.ReceivedUtc)
+                        .ToList(),
+                    _ => emails.OrderByDescending(e => e.ReceivedUtc).ToList()
+                };
+
                 var items = emails.Select(e => new EmailItemViewModel(e)).ToList();
 
                 UpdateCollection(EmailItems, items);

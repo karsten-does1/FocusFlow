@@ -35,48 +35,55 @@
                 <RowDefinition Height="*" />
             </Grid.RowDefinitions>
 
-            <StackPanel
-                Grid.Row="0"
-                Margin="0,0,0,10"
-                Orientation="Horizontal">
+            <!--  HEADER  -->
+            <Grid Grid.Row="0" Margin="0,0,0,10">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                </Grid.RowDefinitions>
+
+                <StackPanel Grid.Row="0" Orientation="Horizontal">
+
+                    <TextBlock
+                        VerticalAlignment="Center"
+                        FontSize="24"
+                        FontWeight="Bold"
+                        Text="Emails" />
+
+                    <Button
+                        Margin="20,0,0,0"
+                        Padding="10,5"
+                        HorizontalAlignment="Left"
+                        Background="LightBlue"
+                        Command="{Binding ShowSyncFormCommand}"
+                        Content="📥 Sync" />
+
+                    <Button
+                        Margin="10,0,0,0"
+                        Padding="10,5"
+                        HorizontalAlignment="Left"
+                        Background="#FFCCCC"
+                        Command="{Binding DeleteAllEmailsCommand}"
+                        Content="💥 Delete All" />
+
+                    <Button
+                        Margin="10,0,0,0"
+                        Padding="10,5"
+                        HorizontalAlignment="Left"
+                        Background="LightCoral"
+                        Command="{Binding DeleteSelectedEmailsCommand}"
+                        Content="🗑 Delete"
+                        IsEnabled="{Binding HasSelectedEmails}" />
+                </StackPanel>
 
                 <TextBlock
-                    VerticalAlignment="Center"
-                    FontSize="24"
-                    FontWeight="Bold"
-                    Text="Emails" />
-
-                <Button
-                    Margin="20,0,0,0"
-                    Padding="10,5"
-                    HorizontalAlignment="Left"
-                    Background="LightBlue"
-                    Command="{Binding ShowSyncFormCommand}"
-                    Content="📥 Sync" />
-
-                <Button
-                    Margin="10,0,0,0"
-                    Padding="10,5"
-                    HorizontalAlignment="Left"
-                    Background="#FFCCCC"
-                    Command="{Binding DeleteAllEmailsCommand}"
-                    Content="💥 Delete All" />
-
-                <Button
-                    Margin="10,0,0,0"
-                    Padding="10,5"
-                    HorizontalAlignment="Left"
-                    Background="LightCoral"
-                    Command="{Binding DeleteSelectedEmailsCommand}"
-                    Content="🗑 Delete"
-                    IsEnabled="{Binding HasSelectedEmails}" />
-
-                <TextBlock
-                    Margin="10,0,0,0"
+                    Grid.Row="1"
+                    Margin="0,6,0,0"
+                    HorizontalAlignment="Right"
                     VerticalAlignment="Center"
                     Text="{Binding SelectedEmailsCount, StringFormat='{}{0} selected'}"
                     Visibility="{Binding HasSelectedEmails, Converter={StaticResource BooleanToVisibilityConverter}}" />
-            </StackPanel>
+            </Grid>
 
             <TextBox
                 Grid.Row="1"
@@ -231,19 +238,6 @@
                                     Foreground="#0055AA"
                                     Text="{Binding SelectedEmail.SuggestedAction, StringFormat='⚡ {0}'}" />
                             </Border>
-
-                            <Button
-                                Margin="20,0,0,0"
-                                Padding="10,2"
-                                Background="#E0F7FA"
-                                BorderBrush="#006064"
-                                Command="{Binding CreateTaskFromEmailCommand}"
-                                Foreground="#006064">
-                                <StackPanel Orientation="Horizontal">
-                                    <TextBlock Margin="0,0,5,0" Text="📅" />
-                                    <TextBlock FontWeight="Bold" Text="Maak Taak" />
-                                </StackPanel>
-                            </Button>
                         </StackPanel>
 
                         <Separator Margin="0,10,0,10" />
@@ -254,24 +248,25 @@
                             FontWeight="Bold"
                             Text="Priority" />
 
-                        <StackPanel Margin="0,0,0,15" Orientation="Horizontal">
-                            <Slider
-                                Width="200"
-                                Margin="0,0,10,0"
+                        <StackPanel Margin="0,0,0,15">
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock FontWeight="SemiBold" Text="{Binding SelectedEmail.PriorityScore, StringFormat='Priority: {0}'}" />
+
+                                <TextBlock
+                                    Margin="10,0,0,0"
+                                    FontWeight="SemiBold"
+                                    Text="●">
+                                    <TextBlock.Foreground>
+                                        <Binding Converter="{StaticResource PriorityToColorConverter}" Path="SelectedEmail.PriorityScore" />
+                                    </TextBlock.Foreground>
+                                </TextBlock>
+                            </StackPanel>
+
+                            <ProgressBar
+                                Height="10"
+                                Margin="0,6,0,0"
                                 Maximum="100"
-                                Minimum="0"
-                                Value="{Binding EmailPriorityScore, UpdateSourceTrigger=PropertyChanged}" />
-
-                            <TextBlock
-                                MinWidth="50"
-                                VerticalAlignment="Center"
-                                Text="{Binding EmailPriorityScore}" />
-
-                            <Button
-                                Margin="10,0,0,0"
-                                Padding="10,5"
-                                Command="{Binding UpdateEmailPriorityCommand}"
-                                Content="Update Priority" />
+                                Value="{Binding SelectedEmail.PriorityScore}" />
                         </StackPanel>
 
                         <Separator Margin="0,10,0,10" />

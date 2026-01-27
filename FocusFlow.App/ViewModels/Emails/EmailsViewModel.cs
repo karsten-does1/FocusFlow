@@ -11,6 +11,7 @@ using FocusFlow.App.Services;
 using FocusFlow.App.ViewModels;
 using FocusFlow.Core.Application.Contracts.DTOs;
 using FocusFlow.Core.Application.Contracts.Services;
+using FocusFlow.Core.Domain.Enums;
 
 namespace FocusFlow.App.ViewModels.Emails
 {
@@ -129,7 +130,21 @@ namespace FocusFlow.App.ViewModels.Emails
 
         #endregion
 
-        #region Email details 
+        #region Sorting
+
+        public EmailSortOption[] SortOptions { get; } =
+        {
+            EmailSortOption.Newest,
+            EmailSortOption.Oldest,
+            EmailSortOption.HighestPriority
+        };
+
+        [ObservableProperty]
+        private EmailSortOption _selectedSortOption = EmailSortOption.Newest;
+
+        #endregion
+
+        #region Email details
 
         [ObservableProperty]
         private bool _isEmailFormVisible;
@@ -343,6 +358,12 @@ namespace FocusFlow.App.ViewModels.Emails
             if (e.PropertyName == nameof(EmailItemViewModel.IsSelected))
                 RefreshSelection();
         }
+
+        #endregion
+
+        #region Hooks
+
+        partial void OnSelectedSortOptionChanged(EmailSortOption value) => StartSearchDebounce();
 
         #endregion
     }
