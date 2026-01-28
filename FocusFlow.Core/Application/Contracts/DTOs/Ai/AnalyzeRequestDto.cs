@@ -1,7 +1,9 @@
-﻿namespace FocusFlow.Core.Application.Contracts.DTOs.Ai
+﻿using System.Text.Json.Serialization;
+
+namespace FocusFlow.Core.Application.Contracts.DTOs.Ai
 {
     public sealed record AnalyzeRequestDto(
-        string Subject,
-        string Body
-    );
+     [property: JsonPropertyName("subject")] string Subject,
+     [property: JsonPropertyName("body")] string Body
+ );
 }

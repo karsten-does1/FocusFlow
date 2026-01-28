@@ -31,8 +31,13 @@
         <Grid Grid.Column="0" Margin="0,0,10,0">
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto" />
+                <!--  header  -->
                 <RowDefinition Height="Auto" />
+                <!--  search  -->
+                <RowDefinition Height="Auto" />
+                <!--  filter  -->
                 <RowDefinition Height="*" />
+                <!--  list  -->
             </Grid.RowDefinitions>
 
             <!--  HEADER  -->
@@ -85,6 +90,7 @@
                     Visibility="{Binding HasSelectedEmails, Converter={StaticResource BooleanToVisibilityConverter}}" />
             </Grid>
 
+            <!--  SEARCH  -->
             <TextBox
                 Grid.Row="1"
                 Margin="0,0,0,10"
@@ -109,8 +115,18 @@
                 </TextBox.Style>
             </TextBox>
 
-            <ListBox
+            <!--  FILTER / SORT (added)  -->
+            <ComboBox
                 Grid.Row="2"
+                Width="180"
+                Margin="0,0,0,10"
+                HorizontalAlignment="Center"
+                ItemsSource="{Binding SortOptions}"
+                SelectedItem="{Binding SelectedSortOption}" />
+
+            <!--  LIST  -->
+            <ListBox
+                Grid.Row="3"
                 ItemsSource="{Binding EmailItems}"
                 SelectedItem="{Binding SelectedEmailItem}">
                 <ListBox.ItemTemplate>

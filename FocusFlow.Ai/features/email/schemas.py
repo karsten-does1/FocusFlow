@@ -1,4 +1,4 @@
-from __future__ import annotations
+﻿from __future__ import annotations
 
 from dataclasses import dataclass
 from typing import List, Literal, Optional
@@ -23,14 +23,14 @@ Length = Literal["Short", "Medium", "Long"]
 TaskPriority = Literal["High", "Medium", "Low"]
 
 
-# Analyze 
+# Analyze (API)
 
 class AnalyzeEmailRequest(BaseModel):
     subject: str = Field(default="")
     body: str = Field(default="")
-    sender: Optional[str] = Field(default=None, description="Name or email of sender")
-    receivedAtUtc: Optional[str] = Field(default=None, description="ISO timestamp (UTC)")
-    threadHint: Optional[str] = Field(default=None, description="Short context/snippet (optional)")
+    sender: Optional[str] = Field(default=None)
+    receivedAtUtc: Optional[str] = Field(default=None)
+    threadHint: Optional[str] = Field(default=None)
 
 
 class TaskItem(BaseModel):
@@ -45,8 +45,12 @@ class AnalyzeEmailResponse(BaseModel):
     suggestedAction: str
     extractedTasks: List[TaskItem] = Field(default_factory=list)
 
+    # Optie B (nieuw)
+    keyRequest: Optional[str] = None
+    evidence: List[str] = Field(default_factory=list)
 
-# Draft reply 
+
+# Draft reply
 
 class DraftReplyRequest(BaseModel):
     subject: str = Field(default="")
@@ -117,7 +121,7 @@ class ComposeEmailResponse(BaseModel):
     body: str
 
 
-# Extract tasks 
+# Extract tasks
 
 class ExtractTasksRequest(BaseModel):
     subject: str = Field(default="")
